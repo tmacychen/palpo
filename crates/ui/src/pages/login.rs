@@ -1,43 +1,97 @@
-// 登录页面
+// 登录页面（完整实现）
 
 use leptos::*;
 use leptos_router::*;
+use crate::state::{use_auth, AuthState};
 
 #[component]
 pub fn LoginPage() -> impl IntoView {
+    let auth = use_auth();
+    let navigate = use_navigate();
+    
     let (username, set_username) = create_signal(String::new());
     let (password, set_password) = create_signal(String::new());
+    let (remember_me, set_remember_me) = create_signal(true);
     let (error, set_error) = create_signal(None::<String>);
     let (loading, set_loading) = create_signal(false);
+    let (server_url, set_server_url) = create_signal(String::new());
+    
+    // 初始化服务器地址
+    create_effect(move |_| {
+        if server_url.get().is_empty() {
+            // 尝试从 localStorage 加载
+            if let Ok(saved_url) = gloo_storage::LocalStorage::get("palpo_admin_server_url") {
+                set_server_url.set(saved_url);
+            } else {
+                // 使用当前域名
+                let url = web_sys::window()
+                    .and_then(|w| w.location().origin().ok())
+                    .unwrap_or_else(|| "http://localhost:8008".to_string());
+                set_server_url.set(url);
+            }
+        }
+    });
+    
+    // 监听认证状态变化
+    create_effect(move |_| {
+        match auth.state.get() {
+            AuthState::Authenticated { .. } => {
+                // 已认证，跳转到 dashboard
+                navigate("/dashboard", Default::default());
+            }
+            AuthState::Error(msg) => {
+                set_error.set(Some(msg));
+            }
+            _ => {}
+        }
+    });
     
     let on_submit = move |ev: leptos::ev::SubmitEvent| {
         ev.prevent_default();
         
         let user = username.get();
         let pass = password.get();
+        let url = server_url.get();
         
         if user.is_empty() || pass.is_empty() {
             set_error.set(Some("请输入用户名和密码".to_string()));
             return;
         }
         
+        if url.is_empty() {
+            set_error.set(Some("请输入服务器地址".to_string()));
+            return;
+        }
+        
+        // 保存服务器地址
+        let _ = gloo_storage::LocalStorage::set("palpo_admin_server_url", &url);
+        auth.server_url.set(url);
+        
         set_loading.set(true);
         set_error.set(None);
         
-        // TODO: 实现登录 API 调用
-        log::info!("尝试登录: {}", user);
-        
-        // 模拟登录延迟
-        set_timeout(
-            move || {
-                set_loading.set(false);
-                // 成功后跳转到 dashboard
-                let navigate = use_navigate();
-                navigate("/dashboard", Default::default());
-            },
-            std::time::Duration::from_secs(1),
-        );
+        // 执行登录
+        let auth_clone = auth.clone();
+        spawn(async move {
+            match auth_clone.login(user, pass).await {
+                Ok(()) => {
+                    // 登录成功，导航到 dashboard
+                    navigate("/dashboard", Default::default());
+                }
+                Err(e) => {
+                    set_error.set(Some(e));
+                    set_loading.set(false);
+                }
+            }
+        });
     };
+    
+    // 如果已认证，显示加载状态
+    create_effect(move |_| {
+        if auth.state.get().is_authenticated() {
+            navigate("/dashboard", Default::default());
+        }
+    });
     
     view! {
         <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -49,8 +103,27 @@ pub fn LoginPage() -> impl IntoView {
                             <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
                         </svg>
                     </div>
-                    <h1 class="text-2xl font-bold text-white mb-2">Palpo Admin</h1>
-                    <p class="text-gray-400 text-sm">Matrix Homeserver 管理系统</p>
+                    <h1 class="text-2xl font-bold text-white mb-2">"Palpo Admin"</h1>
+                    <p class="text-gray-400 text-sm">"Matrix Homeserver 管理系统"</p>
+                </div>
+                
+                <!-- 服务器地址设置 -->
+                <div class="mb-6">
+                    <label for="server_url" class="block text-sm font-medium text-gray-300 mb-2">
+                        "服务器地址"
+                    </label>
+                    <input
+                        id="server_url"
+                        type="text"
+                        class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg
+                               text-white placeholder-gray-500 text-sm
+                               focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
+                               transition-all duration-200"
+                        placeholder="http://localhost:8008"
+                        prop:value=server_url
+                        on:input=move |ev| set_server_url.set(event_target_value(&ev))
+                        disabled=loading
+                    />
                 </div>
                 
                 <!-- 错误提示 -->
@@ -79,6 +152,7 @@ pub fn LoginPage() -> impl IntoView {
                                 prop:value=username
                                 on:input=move |ev| set_username.set(event_target_value(&ev))
                                 disabled=loading
+                                autofocus
                             />
                         </div>
                         
@@ -103,7 +177,14 @@ pub fn LoginPage() -> impl IntoView {
                         
                         <!-- 记住我 -->
                         <div class="flex items-center">
-                            <input id="remember" type="checkbox" class="w-4 h-4 text-primary-600 bg-gray-800 border-gray-600 rounded focus:ring-primary-500"/>
+                            <input 
+                                id="remember" 
+                                type="checkbox" 
+                                class="w-4 h-4 text-primary-600 bg-gray-800 border-gray-600 rounded focus:ring-primary-500"
+                                prop:checked=move || remember_me.get()
+                                on:input=move |ev| set_remember_me.set(event_target_checked(&ev))
+                                disabled=loading
+                            />
                             <label for="remember" class="ml-2 text-sm text-gray-400">
                                 "记住登录状态"
                             </label>
@@ -117,7 +198,7 @@ pub fn LoginPage() -> impl IntoView {
                                    hover:from-primary-600 hover:to-primary-800
                                    focus:outline-none focus:ring-2 focus:ring-primary-500/50
                                    transition-all duration-200 transform hover:scale-[1.02]
-                                   disabled:opacity-50 disabled:cursor-not-allowed"
+                                   disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                             disabled=loading
                         >
                             {move || if loading.get() {
@@ -146,4 +227,22 @@ pub fn LoginPage() -> impl IntoView {
             </div>
         </div>
     }
+}
+
+/// 辅助函数：获取事件目标值
+fn event_target_value(ev: &web_sys::Event) -> String {
+    use wasm_bindgen::JsCast;
+    ev.target()
+        .and_then(|t| t.dyn_into::<web_sys::HtmlInputElement>().ok())
+        .map(|input| input.value())
+        .unwrap_or_default()
+}
+
+/// 辅助函数：获取 checkbox 状态
+fn event_target_checked(ev: &web_sys::Event) -> bool {
+    use wasm_bindgen::JsCast;
+    ev.target()
+        .and_then(|t| t.dyn_into::<web_sys::HtmlInputElement>().ok())
+        .map(|input| input.checked())
+        .unwrap_or_default()
 }
