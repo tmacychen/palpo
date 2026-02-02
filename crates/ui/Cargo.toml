@@ -1,0 +1,55 @@
+[package]
+name = "palpo-ui"
+version = "0.1.0"
+edition = "2021"
+authors = ["Palpo Contributors"]
+description = "Admin UI for Palpo Matrix Homeserver"
+license = "Apache-2.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Leptos 核心框架
+leptos = { version = "0.7", features = ["csr"] }
+leptos_router = { version = "0.7" }
+
+# WASM 运行时和工具
+wasm-bindgen = "0.2"
+web-sys = "0.3"
+js-sys = "0.3"
+gloo-net = "0.6"
+gloo-storage = "0.3"
+gloo-utils = "0.2"
+gloo-events = "0.2"
+
+# 序列化/反序列化
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# 日志和调试
+wasm-logger = "0.2"
+log = "0.4"
+console_error_panic_hook = "0.1"
+
+# 时间和日期
+chrono = { version = "0.4", features = ["serde"] }
+
+# 图标库（可选，使用 lucide 的 Leptos 封装）
+# lucide-leptos = "0.1"  # 如果需要，后续添加
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[profile.release]
+# 优化 WASM 体积
+opt-level = "z"
+lto = true
+strip = true
+# 关闭 panic 的栈回溯以减少体积
+panic = "abort"
+
+# 针对 WASM 的特殊优化
+[profile.wasm-release]
+inherits = "release"
+opt-level = "s"  # 优化大小

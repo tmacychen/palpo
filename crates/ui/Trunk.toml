@@ -1,0 +1,27 @@
+[build]
+# WASM 绑定目标
+target = "wasm32-unknown-unknown"
+
+# 发布目录
+dist = "dist"
+
+# 公开 URL 路径（部署时使用）
+public_url = "/_admin/"
+
+# 额外的复制文件（如静态资源）
+# [[copy_files]]
+# from = "static"
+# to = "static"
+
+[serve]
+# 开发服务器端口
+port = 8080
+
+# 代理 API 请求到 Palpo 服务器
+[[proxy]]
+# 代理所有 API 请求
+backend = "http://localhost:8008"
+
+[wasm_bindgen]
+# 启用 debug 信息（开发模式）
+debug = true
