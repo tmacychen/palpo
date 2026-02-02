@@ -9,10 +9,14 @@ license = "Apache-2.0"
 [lib]
 crate-type = ["cdylib"]
 
+[[bin]]
+name = "palpo-ui"
+path = "src/main.rs"
+
 [dependencies]
 # Leptos 核心框架
-leptos = { version = "0.7", features = ["csr"] }
-leptos_router = { version = "0.7" }
+leptos = { version = "0.6", features = ["csr"] }
+leptos_router = { version = "0.6", features = ["csr"] }
 
 # WASM 运行时和工具
 wasm-bindgen = "0.2"
@@ -34,6 +38,12 @@ console_error_panic_hook = "0.1"
 
 # 时间和日期
 chrono = { version = "0.4", features = ["serde"] }
+
+# URL 编码
+urlencoding = "2.1"
+
+# 定时器
+gloo-timers = { version = "0.3", features = ["futures"] }
 
 # 图标库（可选，使用 lucide 的 Leptos 封装）
 # lucide-leptos = "0.1"  # 如果需要，后续添加

@@ -1,2 +1,5 @@
 // 状态管理模块
-// 将在后续任务中实现全局状态
+
+pub mod auth;
+
+pub use auth::{use_auth, AuthState};

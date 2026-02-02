@@ -2,13 +2,33 @@
 
 use leptos::*;
 use serde::{Deserialize, Serialize};
-use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+use crate::services::{LoginResponse, AuthApi, LoginRequest};
 use crate::services::api::ApiError;
-use gloo_storage::{LocalStorage, Storage};
 
 /// 认证令牌存储键
 const AUTH_TOKEN_KEY: &str = "palpo_admin_token";
 const USER_ID_KEY: &str = "palpo_admin_user_id";
+
+// 辅助函数：从 localStorage 获取值
+fn get_local_storage(key: &str) -> Option<String> {
+    let window = web_sys::window()?;
+    let storage = window.local_storage().ok()??;
+    storage.get_item(key).ok()?
+}
+
+// 辅助函数：设置 localStorage 值
+fn set_local_storage(key: &str, value: &str) {
+    if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok()?) {
+        let _ = storage.set_item(key, value);
+    }
+}
+
+// 辅助函数：删除 localStorage 值
+fn delete_local_storage(key: &str) {
+    if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok()?) {
+        let _ = storage.remove_item(key);
+    }
+}
 
 /// 认证状态
 #[derive(Debug, Clone, PartialEq)]
@@ -70,18 +90,19 @@ impl AuthContext {
     /// 从 localStorage 加载认证信息
     fn load_from_storage() -> (AuthState, String) {
         // 加载服务器地址（默认使用当前域名）
-        let server_url = LocalStorage::get::<Result<String, _>>("palpo_admin_server_url")
-            .unwrap_or_else(|_| Ok(format!("{}", web_sys::window()
-                .and_then(|w| w.location().origin().ok())
-                .unwrap_or_else(|| "http://localhost:8008".to_string())))
-            .unwrap_or_else(|_| "http://localhost:8008".to_string());
+        let server_url = get_local_storage("palpo_admin_server_url")
+            .unwrap_or_else(|| {
+                web_sys::window()
+                    .and_then(|w| w.location().origin().ok())
+                    .unwrap_or_else(|| "http://localhost:8008".to_string())
+            });
         
         // 加载 token
-        match (
-            LocalStorage::get::<Result<String, _>>(AUTH_TOKEN_KEY),
-            LocalStorage::get::<Result<String, _>>(USER_ID_KEY),
-        ) {
-            (Ok(Ok(token)), Ok(Ok(user_id))) => {
+        let token = get_local_storage(AUTH_TOKEN_KEY);
+        let user_id = get_local_storage(USER_ID_KEY);
+
+        match (token, user_id) {
+            (Some(token), Some(user_id)) => {
                 if !token.is_empty() && !user_id.is_empty() {
                     (AuthState::Authenticated { token, user_id }, server_url)
                 } else {
@@ -94,15 +115,15 @@ impl AuthContext {
     
     /// 保存认证信息到 localStorage
     fn save_to_storage(token: &str, user_id: &str, server_url: &str) {
-        let _ = LocalStorage::set(AUTH_TOKEN_KEY, token);
-        let _ = LocalStorage::set(USER_ID_KEY, user_id);
-        let _ = LocalStorage::set("palpo_admin_server_url", server_url);
+        set_local_storage(AUTH_TOKEN_KEY, token);
+        set_local_storage(USER_ID_KEY, user_id);
+        set_local_storage("palpo_admin_server_url", server_url);
     }
     
     /// 清除 localStorage 中的认证信息
     fn clear_storage() {
-        let _ = LocalStorage::delete(AUTH_TOKEN_KEY);
-        let _ = LocalStorage::delete(USER_ID_KEY);
+        delete_local_storage(AUTH_TOKEN_KEY);
+        delete_local_storage(USER_ID_KEY);
     }
     
     /// 登录
@@ -190,8 +211,8 @@ pub fn ProvideAuthContext(children: Children) -> impl IntoView {
     provide_context(context.clone());
     
     // 验证当前 token（如果已登录）
-    spawn(async move {
-        if context.state.get().is_authenticated() {
+    leptos::spawn_local(async move {
+        if context.state.with_untracked(|state| state.is_authenticated()) {
             context.validate_current_token().await;
         }
     });

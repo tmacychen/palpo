@@ -65,10 +65,13 @@ pub fn MainLayout(children: Children) -> impl IntoView {
     let auth = use_auth();
     let navigate = use_navigate();
     
+    // 克隆 navigate 用于不同闭包
+    let navigate_effect = navigate.clone();
+    
     // 检查是否已认证
     create_effect(move |_| {
         if !auth.state.get().is_authenticated() {
-            navigate("/", Default::default());
+            navigate_effect("/", Default::default());
         }
     });
     
@@ -113,9 +116,9 @@ pub fn MainLayout(children: Children) -> impl IntoView {
     
     view! {
         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
-            <!-- 侧边栏 -->
+            // 侧边栏
             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
-                <!-- Logo -->
+                // Logo区域
                 <div class="h-16 flex items-center justify-center border-b border-gray-700/30">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
@@ -127,7 +130,7 @@ pub fn MainLayout(children: Children) -> impl IntoView {
                     </div>
                 </div>
                 
-                <!-- 导航菜单 -->
+                // 导航菜单
                 <nav class="flex-1 py-4 overflow-y-auto">
                     <ul class="space-y-1 px-3">
                         {nav_items.into_iter()
@@ -145,7 +148,7 @@ pub fn MainLayout(children: Children) -> impl IntoView {
                                                    transition-all duration-200 group"
                                             active_class="bg-primary-500/20 text-primary-400"
                                         >
-                                            {icon.view()}
+                                            {move || icon.view()}
                                             <span class="text-sm font-medium">{label}</span>
                                         </A>
                                     </li>
@@ -156,7 +159,7 @@ pub fn MainLayout(children: Children) -> impl IntoView {
                     </ul>
                 </nav>
                 
-                <!-- 用户信息 -->
+                // 用户信息
                 <div class="p-4 border-t border-gray-700/30">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full
@@ -175,25 +178,25 @@ pub fn MainLayout(children: Children) -> impl IntoView {
                                    rounded-lg transition-colors duration-200"
                             title="退出登录"
                         >
-                            <Icon::Logout.view/>
+                            {Icon::Logout.view()}
                         </button>
                     </div>
                 </div>
             </div>
             
-            <!-- 主内容区 -->
+            // 主内容区
             <div class="flex-1 flex flex-col">
-                <!-- 顶部栏 -->
+                // 顶部栏
                 <header class="h-16 bg-gray-900/95 backdrop-blur-sm border-b border-gray-700/50 flex items-center px-6">
                     <div class="flex items-center justify-between w-full">
-                        <!-- 面包屑导航 -->
+                        // 面包屑导航
                         <nav class="flex items-center space-x-2">
                             <Breadcrumb/>
                         </nav>
                         
-                        <!-- 右侧操作 -->
+                        // 右侧操作
                         <div class="flex items-center space-x-4">
-                            <!-- 刷新按钮 -->
+                            // 刷新按钮
                             <button
                                 class="p-2 text-gray-400 hover:text-white hover:bg-gray-800/50
                                        rounded-lg transition-colors duration-200"
@@ -204,7 +207,7 @@ pub fn MainLayout(children: Children) -> impl IntoView {
                                 </svg>
                             </button>
                             
-                            <!-- 通知 -->
+                            // 通知按钮
                             <button
                                 class="p-2 text-gray-400 hover:text-white hover:bg-gray-800/50
                                        rounded-lg transition-colors duration-200 relative"
@@ -216,7 +219,7 @@ pub fn MainLayout(children: Children) -> impl IntoView {
                                 <span class="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full"></span>
                             </button>
                             
-                            <!-- 用户头像 -->
+                            // 用户头像
                             <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full
                                         flex items-center justify-center text-white text-sm font-bold">
                                 {move || current_user().chars().next().unwrap_or('U').to_string().to_uppercase()}
@@ -225,7 +228,7 @@ pub fn MainLayout(children: Children) -> impl IntoView {
                     </div>
                 </header>
                 
-                <!-- 页面内容 -->
+                // 页面内容
                 <main class="flex-1 overflow-y-auto p-6">
                     {children()}
                 </main>
@@ -279,11 +282,15 @@ pub fn Breadcrumb() -> impl IntoView {
             {move || segments().into_iter().enumerate().map(|(i, (path, name))| {
                 view! {
                     <li class="flex items-center">
-                        {i > 0.then(|| view! {
-                            <svg class="w-4 h-4 text-gray-500 mx-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                        })}
+                        {if i > 0 {
+                            Some(view! {
+                                <svg class="w-4 h-4 text-gray-500 mx-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            })
+                        } else {
+                            None
+                        }}
                         <A
                             href=path
                             class=move || format!(

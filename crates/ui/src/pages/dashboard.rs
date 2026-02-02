@@ -1,6 +1,7 @@
 // Dashboard 首页
 
 use leptos::*;
+use crate::components::MainLayout;
 
 #[component]
 pub fn DashboardPage() -> impl IntoView {
@@ -11,18 +12,16 @@ pub fn DashboardPage() -> impl IntoView {
     let (server_version, _set_server_version) = create_signal("0.1.0".to_string());
     
     view! {
-        <div class="p-6 space-y-6">
-            <!-- 页面标题 -->
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold text-white">"Dashboard"</h1>
-                    <p class="text-gray-400 mt-1">"服务器运行状态概览"</p>
+        <MainLayout>
+            <div class="p-6 space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">"Dashboard"</h1>
+                        <p class="text-gray-400 mt-1">"服务器运行状态概览"</p>
+                    </div>
                 </div>
-            </div>
             
-            <!-- 统计卡片 -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- 用户总数 -->
                 <div class="glass-dark rounded-xl p-6 hover:scale-[1.02] transition-transform duration-200">
                     <div class="flex items-center justify-between">
                         <div>
@@ -41,7 +40,6 @@ pub fn DashboardPage() -> impl IntoView {
                     </div>
                 </div>
                 
-                <!-- 房间总数 -->
                 <div class="glass-dark rounded-xl p-6 hover:scale-[1.02] transition-transform duration-200">
                     <div class="flex items-center justify-between">
                         <div>
@@ -60,7 +58,6 @@ pub fn DashboardPage() -> impl IntoView {
                     </div>
                 </div>
                 
-                <!-- 联邦服务器 -->
                 <div class="glass-dark rounded-xl p-6 hover:scale-[1.02] transition-transform duration-200">
                     <div class="flex items-center justify-between">
                         <div>
@@ -78,7 +75,6 @@ pub fn DashboardPage() -> impl IntoView {
                     </div>
                 </div>
                 
-                <!-- 服务器版本 -->
                 <div class="glass-dark rounded-xl p-6 hover:scale-[1.02] transition-transform duration-200">
                     <div class="flex items-center justify-between">
                         <div>
@@ -97,9 +93,7 @@ pub fn DashboardPage() -> impl IntoView {
                 </div>
             </div>
             
-            <!-- 近期活动 -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- 最近注册用户 -->
                 <div class="glass-dark rounded-xl p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-semibold text-white">"最近注册用户"</h2>
@@ -147,7 +141,6 @@ pub fn DashboardPage() -> impl IntoView {
                     </div>
                 </div>
                 
-                <!-- 系统状态 -->
                 <div class="glass-dark rounded-xl p-6">
                     <h2 class="text-lg font-semibold text-white mb-4">"系统状态"</h2>
                     <div class="space-y-4">
@@ -184,7 +177,6 @@ pub fn DashboardPage() -> impl IntoView {
                 </div>
             </div>
             
-            <!-- 快捷操作 -->
             <div class="glass-dark rounded-xl p-6">
                 <h2 class="text-lg font-semibold text-white mb-4">"快捷操作"</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -226,6 +218,7 @@ pub fn DashboardPage() -> impl IntoView {
                     </button>
                 </div>
             </div>
-        </div>
+            </div>
+        </MainLayout>
     }
 }

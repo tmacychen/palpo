@@ -1,0 +1,4255 @@
+2026-02-02T12:44:30.015152Z  INFO 🚀 Starting trunk 0.21.14
+2026-02-02T12:44:30.020458Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variant `Other` is never constructed
+  --> crates/ui/src/services/api.rs:16:5
+   |
+ 8 | pub enum ApiError {
+   |          -------- variant in this enum
+...
+16 |     Other(String),
+   |     ^^^^^
+   |
+   = note: `ApiError` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `with_token`, `token`, `put`, and `delete` are never used
+   --> crates/ui/src/services/api.rs:51:12
+    |
+ 41 | impl ApiClient {
+    | -------------- methods in this implementation
+...
+ 51 |     pub fn with_token(mut self, token: String) -> Self {
+    |            ^^^^^^^^^^
+...
+ 62 |     pub fn token(&self) -> Option<&str> {
+    |            ^^^^^
+...
+116 |     pub async fn put<T: DeserializeOwned, B: Serialize>(
+    |                  ^^^
+...
+140 |     pub async fn delete<T: DeserializeOwned>(&self, path: &str) -> Result<T, ApiError> {
+    |                  ^^^^^^
+
+warning: struct `ApiResponse` is never constructed
+   --> crates/ui/src/services/api.rs:202:12
+    |
+202 | pub struct ApiResponse<T> {
+    |            ^^^^^^^^^^^
+
+warning: associated functions `success` and `error` are never used
+   --> crates/ui/src/services/api.rs:210:12
+    |
+208 | impl<T> ApiResponse<T> {
+    | ---------------------- associated functions in this implementation
+209 |     /// 创建成功响应
+210 |     pub fn success(data: T) -> Self {
+    |            ^^^^^^^
+...
+219 |     pub fn error(msg: String) -> Self {
+    |            ^^^^^
+
+warning: struct `UserInfo` is never constructed
+ --> crates/ui/src/services/users.rs:9:12
+  |
+9 | pub struct UserInfo {
+  |            ^^^^^^^^
+
+warning: struct `ExternalId` is never constructed
+  --> crates/ui/src/services/users.rs:37:12
+   |
+37 | pub struct ExternalId {
+   |            ^^^^^^^^^^
+
+warning: struct `UserListResponse` is never constructed
+  --> crates/ui/src/services/users.rs:46:12
+   |
+46 | pub struct UserListResponse {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: struct `UserDetail` is never constructed
+  --> crates/ui/src/services/users.rs:55:12
+   |
+55 | pub struct UserDetail {
+   |            ^^^^^^^^^^
+
+warning: struct `ThreePid` is never constructed
+  --> crates/ui/src/services/users.rs:84:12
+   |
+84 | pub struct ThreePid {
+   |            ^^^^^^^^
+
+warning: struct `CreateUserRequest` is never constructed
+  --> crates/ui/src/services/users.rs:95:12
+   |
+95 | pub struct CreateUserRequest {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `ResetPasswordRequest` is never constructed
+   --> crates/ui/src/services/users.rs:114:12
+    |
+114 | pub struct ResetPasswordRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RateLimitOverride` is never constructed
+   --> crates/ui/src/services/users.rs:123:12
+    |
+123 | pub struct RateLimitOverride {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `JoinedRoomsResponse` is never constructed
+   --> crates/ui/src/services/users.rs:132:12
+    |
+132 | pub struct JoinedRoomsResponse {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Pusher` is never constructed
+   --> crates/ui/src/services/users.rs:140:12
+    |
+140 | pub struct Pusher {
+    |            ^^^^^^
+
+warning: struct `PushersResponse` is never constructed
+   --> crates/ui/src/services/users.rs:158:12
+    |
+158 | pub struct PushersResponse {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `AccountData` is never constructed
+   --> crates/ui/src/services/users.rs:165:12
+    |
+165 | pub struct AccountData {
+    |            ^^^^^^^^^^^
+
+warning: struct `UsersApi` is never constructed
+   --> crates/ui/src/services/users.rs:171:12
+    |
+171 | pub struct UsersApi {
+    |            ^^^^^^^^
+
+warning: multiple associated items are never used
+   --> crates/ui/src/services/users.rs:177:12
+    |
+175 | impl UsersApi {
+    | ------------- associated items in this implementation
+176 |     /// 创建新的用户 API 客户端
+177 |     pub fn new(client: ApiClient) -> Self {
+    |            ^^^
+...
+182 |     pub async fn list_users(&self, params: &UserListParams) -> Result<UserListResponse, ApiError> {
+    |                  ^^^^^^^^^^
+...
+214 |     pub async fn get_user(&self, user_id: &str) -> Result<UserDetail, ApiError> {
+    |                  ^^^^^^^^
+...
+220 |     pub async fn create_or_update_user(
+    |                  ^^^^^^^^^^^^^^^^^^^^^
+...
+230 |     pub async fn deactivate_user(&self, user_id: &str, erase: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^
+...
+238 |     pub async fn reset_password(
+    |                  ^^^^^^^^^^^^^^
+...
+254 |     pub async fn set_admin(&self, user_id: &str, admin: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^
+...
+262 |     pub async fn shadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^
+...
+269 |     pub async fn unshadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+276 |     pub async fn suspend_user(&self, user_id: &str, suspend: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+284 |     pub async fn get_whois(&self, user_id: &str) -> Result<WhoisResponse, ApiError> {
+    |                  ^^^^^^^^^
+...
+290 |     pub async fn get_joined_rooms(&self, user_id: &str) -> Result<JoinedRoomsResponse, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+296 |     pub async fn get_pushers(&self, user_id: &str) -> Result<PushersResponse, ApiError> {
+    |                  ^^^^^^^^^^^
+...
+302 |     pub async fn get_account_data(&self, user_id: &str) -> Result<AccountData, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+308 |     pub async fn get_rate_limit(&self, user_id: &str) -> Result<RateLimitOverride, ApiError> {
+    |                  ^^^^^^^^^^^^^^
+...
+314 |     pub async fn set_rate_limit(
+    |                  ^^^^^^^^^^^^^^
+...
+324 |     pub async fn delete_rate_limit(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^^^
+
+warning: struct `UserListParams` is never constructed
+   --> crates/ui/src/services/users.rs:333:12
+    |
+333 | pub struct UserListParams {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `WhoisResponse` is never constructed
+   --> crates/ui/src/services/users.rs:363:12
+    |
+363 | pub struct WhoisResponse {
+    |            ^^^^^^^^^^^^^
+
+warning: struct `DeviceSessions` is never constructed
+   --> crates/ui/src/services/users.rs:369:12
+    |
+369 | pub struct DeviceSessions {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `SessionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:374:12
+    |
+374 | pub struct SessionInfo {
+    |            ^^^^^^^^^^^
+
+warning: struct `ConnectionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:379:12
+    |
+379 | pub struct ConnectionInfo {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `user_id` is never used
+  --> crates/ui/src/state/auth.rs:61:12
+   |
+46 | impl AuthState {
+   | -------------- method in this implementation
+...
+61 |     pub fn user_id(&self) -> Option<&str> {
+   |            ^^^^^^^
+
+warning: `palpo-ui` (lib) generated 31 warnings (run `cargo fix --lib -p palpo-ui` to apply 7 suggestions)
+warning: `palpo-ui` (bin "palpo-ui") generated 31 warnings (31 duplicates)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.26s
+2026-02-02T12:44:31.807959Z  INFO applying new distribution
+2026-02-02T12:44:31.808731Z  INFO ✅ success
+2026-02-02T12:44:31.808791Z  INFO 📡 serving static assets at -> /_admin/
+2026-02-02T12:44:31.808826Z  INFO 📡 server listening at:
+2026-02-02T12:44:31.808831Z  INFO     🏠 http://127.0.0.1:8080/_admin/
+2026-02-02T12:44:31.808835Z  INFO     🏠 http://[::1]:8080/_admin/
+2026-02-02T12:44:31.809236Z  INFO     🏠 http://localhost.:8080/_admin/
+2026-02-02T12:50:26.329284Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on artifact directory
+   Compiling leptos_router v0.6.15
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variant `Other` is never constructed
+  --> crates/ui/src/services/api.rs:16:5
+   |
+ 8 | pub enum ApiError {
+   |          -------- variant in this enum
+...
+16 |     Other(String),
+   |     ^^^^^
+   |
+   = note: `ApiError` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `with_token`, `token`, `put`, and `delete` are never used
+   --> crates/ui/src/services/api.rs:51:12
+    |
+ 41 | impl ApiClient {
+    | -------------- methods in this implementation
+...
+ 51 |     pub fn with_token(mut self, token: String) -> Self {
+    |            ^^^^^^^^^^
+...
+ 62 |     pub fn token(&self) -> Option<&str> {
+    |            ^^^^^
+...
+116 |     pub async fn put<T: DeserializeOwned, B: Serialize>(
+    |                  ^^^
+...
+140 |     pub async fn delete<T: DeserializeOwned>(&self, path: &str) -> Result<T, ApiError> {
+    |                  ^^^^^^
+
+warning: struct `ApiResponse` is never constructed
+   --> crates/ui/src/services/api.rs:202:12
+    |
+202 | pub struct ApiResponse<T> {
+    |            ^^^^^^^^^^^
+
+warning: associated functions `success` and `error` are never used
+   --> crates/ui/src/services/api.rs:210:12
+    |
+208 | impl<T> ApiResponse<T> {
+    | ---------------------- associated functions in this implementation
+209 |     /// 创建成功响应
+210 |     pub fn success(data: T) -> Self {
+    |            ^^^^^^^
+...
+219 |     pub fn error(msg: String) -> Self {
+    |            ^^^^^
+
+warning: struct `UserInfo` is never constructed
+ --> crates/ui/src/services/users.rs:9:12
+  |
+9 | pub struct UserInfo {
+  |            ^^^^^^^^
+
+warning: struct `ExternalId` is never constructed
+  --> crates/ui/src/services/users.rs:37:12
+   |
+37 | pub struct ExternalId {
+   |            ^^^^^^^^^^
+
+warning: struct `UserListResponse` is never constructed
+  --> crates/ui/src/services/users.rs:46:12
+   |
+46 | pub struct UserListResponse {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: struct `UserDetail` is never constructed
+  --> crates/ui/src/services/users.rs:55:12
+   |
+55 | pub struct UserDetail {
+   |            ^^^^^^^^^^
+
+warning: struct `ThreePid` is never constructed
+  --> crates/ui/src/services/users.rs:84:12
+   |
+84 | pub struct ThreePid {
+   |            ^^^^^^^^
+
+warning: struct `CreateUserRequest` is never constructed
+  --> crates/ui/src/services/users.rs:95:12
+   |
+95 | pub struct CreateUserRequest {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `ResetPasswordRequest` is never constructed
+   --> crates/ui/src/services/users.rs:114:12
+    |
+114 | pub struct ResetPasswordRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RateLimitOverride` is never constructed
+   --> crates/ui/src/services/users.rs:123:12
+    |
+123 | pub struct RateLimitOverride {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `JoinedRoomsResponse` is never constructed
+   --> crates/ui/src/services/users.rs:132:12
+    |
+132 | pub struct JoinedRoomsResponse {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Pusher` is never constructed
+   --> crates/ui/src/services/users.rs:140:12
+    |
+140 | pub struct Pusher {
+    |            ^^^^^^
+
+warning: struct `PushersResponse` is never constructed
+   --> crates/ui/src/services/users.rs:158:12
+    |
+158 | pub struct PushersResponse {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `AccountData` is never constructed
+   --> crates/ui/src/services/users.rs:165:12
+    |
+165 | pub struct AccountData {
+    |            ^^^^^^^^^^^
+
+warning: struct `UsersApi` is never constructed
+   --> crates/ui/src/services/users.rs:171:12
+    |
+171 | pub struct UsersApi {
+    |            ^^^^^^^^
+
+warning: multiple associated items are never used
+   --> crates/ui/src/services/users.rs:177:12
+    |
+175 | impl UsersApi {
+    | ------------- associated items in this implementation
+176 |     /// 创建新的用户 API 客户端
+177 |     pub fn new(client: ApiClient) -> Self {
+    |            ^^^
+...
+182 |     pub async fn list_users(&self, params: &UserListParams) -> Result<UserListResponse, ApiError> {
+    |                  ^^^^^^^^^^
+...
+214 |     pub async fn get_user(&self, user_id: &str) -> Result<UserDetail, ApiError> {
+    |                  ^^^^^^^^
+...
+220 |     pub async fn create_or_update_user(
+    |                  ^^^^^^^^^^^^^^^^^^^^^
+...
+230 |     pub async fn deactivate_user(&self, user_id: &str, erase: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^
+...
+238 |     pub async fn reset_password(
+    |                  ^^^^^^^^^^^^^^
+...
+254 |     pub async fn set_admin(&self, user_id: &str, admin: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^
+...
+262 |     pub async fn shadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^
+...
+269 |     pub async fn unshadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+276 |     pub async fn suspend_user(&self, user_id: &str, suspend: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+284 |     pub async fn get_whois(&self, user_id: &str) -> Result<WhoisResponse, ApiError> {
+    |                  ^^^^^^^^^
+...
+290 |     pub async fn get_joined_rooms(&self, user_id: &str) -> Result<JoinedRoomsResponse, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+296 |     pub async fn get_pushers(&self, user_id: &str) -> Result<PushersResponse, ApiError> {
+    |                  ^^^^^^^^^^^
+...
+302 |     pub async fn get_account_data(&self, user_id: &str) -> Result<AccountData, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+308 |     pub async fn get_rate_limit(&self, user_id: &str) -> Result<RateLimitOverride, ApiError> {
+    |                  ^^^^^^^^^^^^^^
+...
+314 |     pub async fn set_rate_limit(
+    |                  ^^^^^^^^^^^^^^
+...
+324 |     pub async fn delete_rate_limit(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^^^
+
+warning: struct `UserListParams` is never constructed
+   --> crates/ui/src/services/users.rs:333:12
+    |
+333 | pub struct UserListParams {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `WhoisResponse` is never constructed
+   --> crates/ui/src/services/users.rs:363:12
+    |
+363 | pub struct WhoisResponse {
+    |            ^^^^^^^^^^^^^
+
+warning: struct `DeviceSessions` is never constructed
+   --> crates/ui/src/services/users.rs:369:12
+    |
+369 | pub struct DeviceSessions {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `SessionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:374:12
+    |
+374 | pub struct SessionInfo {
+    |            ^^^^^^^^^^^
+
+warning: struct `ConnectionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:379:12
+    |
+379 | pub struct ConnectionInfo {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `user_id` is never used
+  --> crates/ui/src/state/auth.rs:61:12
+   |
+46 | impl AuthState {
+   | -------------- method in this implementation
+...
+61 |     pub fn user_id(&self) -> Option<&str> {
+   |            ^^^^^^^
+
+warning: `palpo-ui` (bin "palpo-ui") generated 31 warnings (run `cargo fix --bin "palpo-ui" -p palpo-ui` to apply 7 suggestions)
+warning: `palpo-ui` (lib) generated 31 warnings (31 duplicates)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 8.22s
+2026-02-02T12:50:36.639197Z  INFO applying new distribution
+2026-02-02T12:50:36.640325Z  INFO ✅ success
+2026-02-02T12:51:45.027184Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on artifact directory
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variant `Other` is never constructed
+  --> crates/ui/src/services/api.rs:16:5
+   |
+ 8 | pub enum ApiError {
+   |          -------- variant in this enum
+...
+16 |     Other(String),
+   |     ^^^^^
+   |
+   = note: `ApiError` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `with_token`, `token`, `put`, and `delete` are never used
+   --> crates/ui/src/services/api.rs:51:12
+    |
+ 41 | impl ApiClient {
+    | -------------- methods in this implementation
+...
+ 51 |     pub fn with_token(mut self, token: String) -> Self {
+    |            ^^^^^^^^^^
+...
+ 62 |     pub fn token(&self) -> Option<&str> {
+    |            ^^^^^
+...
+116 |     pub async fn put<T: DeserializeOwned, B: Serialize>(
+    |                  ^^^
+...
+140 |     pub async fn delete<T: DeserializeOwned>(&self, path: &str) -> Result<T, ApiError> {
+    |                  ^^^^^^
+
+warning: struct `ApiResponse` is never constructed
+   --> crates/ui/src/services/api.rs:202:12
+    |
+202 | pub struct ApiResponse<T> {
+    |            ^^^^^^^^^^^
+
+warning: associated functions `success` and `error` are never used
+   --> crates/ui/src/services/api.rs:210:12
+    |
+208 | impl<T> ApiResponse<T> {
+    | ---------------------- associated functions in this implementation
+209 |     /// 创建成功响应
+210 |     pub fn success(data: T) -> Self {
+    |            ^^^^^^^
+...
+219 |     pub fn error(msg: String) -> Self {
+    |            ^^^^^
+
+warning: struct `UserInfo` is never constructed
+ --> crates/ui/src/services/users.rs:9:12
+  |
+9 | pub struct UserInfo {
+  |            ^^^^^^^^
+
+warning: struct `ExternalId` is never constructed
+  --> crates/ui/src/services/users.rs:37:12
+   |
+37 | pub struct ExternalId {
+   |            ^^^^^^^^^^
+
+warning: struct `UserListResponse` is never constructed
+  --> crates/ui/src/services/users.rs:46:12
+   |
+46 | pub struct UserListResponse {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: struct `UserDetail` is never constructed
+  --> crates/ui/src/services/users.rs:55:12
+   |
+55 | pub struct UserDetail {
+   |            ^^^^^^^^^^
+
+warning: struct `ThreePid` is never constructed
+  --> crates/ui/src/services/users.rs:84:12
+   |
+84 | pub struct ThreePid {
+   |            ^^^^^^^^
+
+warning: struct `CreateUserRequest` is never constructed
+  --> crates/ui/src/services/users.rs:95:12
+   |
+95 | pub struct CreateUserRequest {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `ResetPasswordRequest` is never constructed
+   --> crates/ui/src/services/users.rs:114:12
+    |
+114 | pub struct ResetPasswordRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RateLimitOverride` is never constructed
+   --> crates/ui/src/services/users.rs:123:12
+    |
+123 | pub struct RateLimitOverride {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `JoinedRoomsResponse` is never constructed
+   --> crates/ui/src/services/users.rs:132:12
+    |
+132 | pub struct JoinedRoomsResponse {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Pusher` is never constructed
+   --> crates/ui/src/services/users.rs:140:12
+    |
+140 | pub struct Pusher {
+    |            ^^^^^^
+
+warning: struct `PushersResponse` is never constructed
+   --> crates/ui/src/services/users.rs:158:12
+    |
+158 | pub struct PushersResponse {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `AccountData` is never constructed
+   --> crates/ui/src/services/users.rs:165:12
+    |
+165 | pub struct AccountData {
+    |            ^^^^^^^^^^^
+
+warning: struct `UsersApi` is never constructed
+   --> crates/ui/src/services/users.rs:171:12
+    |
+171 | pub struct UsersApi {
+    |            ^^^^^^^^
+
+warning: multiple associated items are never used
+   --> crates/ui/src/services/users.rs:177:12
+    |
+175 | impl UsersApi {
+    | ------------- associated items in this implementation
+176 |     /// 创建新的用户 API 客户端
+177 |     pub fn new(client: ApiClient) -> Self {
+    |            ^^^
+...
+182 |     pub async fn list_users(&self, params: &UserListParams) -> Result<UserListResponse, ApiError> {
+    |                  ^^^^^^^^^^
+...
+214 |     pub async fn get_user(&self, user_id: &str) -> Result<UserDetail, ApiError> {
+    |                  ^^^^^^^^
+...
+220 |     pub async fn create_or_update_user(
+    |                  ^^^^^^^^^^^^^^^^^^^^^
+...
+230 |     pub async fn deactivate_user(&self, user_id: &str, erase: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^
+...
+238 |     pub async fn reset_password(
+    |                  ^^^^^^^^^^^^^^
+...
+254 |     pub async fn set_admin(&self, user_id: &str, admin: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^
+...
+262 |     pub async fn shadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^
+...
+269 |     pub async fn unshadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+276 |     pub async fn suspend_user(&self, user_id: &str, suspend: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+284 |     pub async fn get_whois(&self, user_id: &str) -> Result<WhoisResponse, ApiError> {
+    |                  ^^^^^^^^^
+...
+290 |     pub async fn get_joined_rooms(&self, user_id: &str) -> Result<JoinedRoomsResponse, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+296 |     pub async fn get_pushers(&self, user_id: &str) -> Result<PushersResponse, ApiError> {
+    |                  ^^^^^^^^^^^
+...
+302 |     pub async fn get_account_data(&self, user_id: &str) -> Result<AccountData, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+308 |     pub async fn get_rate_limit(&self, user_id: &str) -> Result<RateLimitOverride, ApiError> {
+    |                  ^^^^^^^^^^^^^^
+...
+314 |     pub async fn set_rate_limit(
+    |                  ^^^^^^^^^^^^^^
+...
+324 |     pub async fn delete_rate_limit(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^^^
+
+warning: struct `UserListParams` is never constructed
+   --> crates/ui/src/services/users.rs:333:12
+    |
+333 | pub struct UserListParams {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `WhoisResponse` is never constructed
+   --> crates/ui/src/services/users.rs:363:12
+    |
+363 | pub struct WhoisResponse {
+    |            ^^^^^^^^^^^^^
+
+warning: struct `DeviceSessions` is never constructed
+   --> crates/ui/src/services/users.rs:369:12
+    |
+369 | pub struct DeviceSessions {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `SessionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:374:12
+    |
+374 | pub struct SessionInfo {
+    |            ^^^^^^^^^^^
+
+warning: struct `ConnectionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:379:12
+    |
+379 | pub struct ConnectionInfo {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `user_id` is never used
+  --> crates/ui/src/state/auth.rs:61:12
+   |
+46 | impl AuthState {
+   | -------------- method in this implementation
+...
+61 |     pub fn user_id(&self) -> Option<&str> {
+   |            ^^^^^^^
+
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+warning: `palpo-ui` (bin "palpo-ui") generated 31 warnings (run `cargo fix --bin "palpo-ui" -p palpo-ui` to apply 7 suggestions)
+error[E0308]: mismatched types
+   --> crates/ui/src/lib.rs:25:22
+    |
+ 25 |     leptos::mount_to("#app", App);
+    |     ---------------- ^^^^^^ expected `HtmlElement`, found `&str`
+    |     |
+    |     arguments to this function are incorrect
+    |
+note: function defined here
+   --> /Users/tmacy/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f/leptos_dom-0.6.15/src/lib.rs:987:8
+    |
+987 | pub fn mount_to<F, N>(parent: web_sys::HtmlElement, f: F)
+    |        ^^^^^^^^
+
+For more information about this error, try `rustc --explain E0308`.
+warning: `palpo-ui` (lib) generated 7 warnings (7 duplicates)
+error: could not compile `palpo-ui` (lib) due to 1 previous error; 7 warnings emitted
+2026-02-02T12:51:48.557638Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101
+2026-02-02T12:52:29.025301Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variant `Other` is never constructed
+  --> crates/ui/src/services/api.rs:16:5
+   |
+ 8 | pub enum ApiError {
+   |          -------- variant in this enum
+...
+16 |     Other(String),
+   |     ^^^^^
+   |
+   = note: `ApiError` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `with_token`, `token`, `put`, and `delete` are never used
+   --> crates/ui/src/services/api.rs:51:12
+    |
+ 41 | impl ApiClient {
+    | -------------- methods in this implementation
+...
+ 51 |     pub fn with_token(mut self, token: String) -> Self {
+    |            ^^^^^^^^^^
+...
+ 62 |     pub fn token(&self) -> Option<&str> {
+    |            ^^^^^
+...
+116 |     pub async fn put<T: DeserializeOwned, B: Serialize>(
+    |                  ^^^
+...
+140 |     pub async fn delete<T: DeserializeOwned>(&self, path: &str) -> Result<T, ApiError> {
+    |                  ^^^^^^
+
+warning: struct `ApiResponse` is never constructed
+   --> crates/ui/src/services/api.rs:202:12
+    |
+202 | pub struct ApiResponse<T> {
+    |            ^^^^^^^^^^^
+
+warning: associated functions `success` and `error` are never used
+   --> crates/ui/src/services/api.rs:210:12
+    |
+208 | impl<T> ApiResponse<T> {
+    | ---------------------- associated functions in this implementation
+209 |     /// 创建成功响应
+210 |     pub fn success(data: T) -> Self {
+    |            ^^^^^^^
+...
+219 |     pub fn error(msg: String) -> Self {
+    |            ^^^^^
+
+warning: struct `UserInfo` is never constructed
+ --> crates/ui/src/services/users.rs:9:12
+  |
+9 | pub struct UserInfo {
+  |            ^^^^^^^^
+
+warning: struct `ExternalId` is never constructed
+  --> crates/ui/src/services/users.rs:37:12
+   |
+37 | pub struct ExternalId {
+   |            ^^^^^^^^^^
+
+warning: struct `UserListResponse` is never constructed
+  --> crates/ui/src/services/users.rs:46:12
+   |
+46 | pub struct UserListResponse {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: struct `UserDetail` is never constructed
+  --> crates/ui/src/services/users.rs:55:12
+   |
+55 | pub struct UserDetail {
+   |            ^^^^^^^^^^
+
+warning: struct `ThreePid` is never constructed
+  --> crates/ui/src/services/users.rs:84:12
+   |
+84 | pub struct ThreePid {
+   |            ^^^^^^^^
+
+warning: struct `CreateUserRequest` is never constructed
+  --> crates/ui/src/services/users.rs:95:12
+   |
+95 | pub struct CreateUserRequest {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `ResetPasswordRequest` is never constructed
+   --> crates/ui/src/services/users.rs:114:12
+    |
+114 | pub struct ResetPasswordRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RateLimitOverride` is never constructed
+   --> crates/ui/src/services/users.rs:123:12
+    |
+123 | pub struct RateLimitOverride {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `JoinedRoomsResponse` is never constructed
+   --> crates/ui/src/services/users.rs:132:12
+    |
+132 | pub struct JoinedRoomsResponse {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Pusher` is never constructed
+   --> crates/ui/src/services/users.rs:140:12
+    |
+140 | pub struct Pusher {
+    |            ^^^^^^
+
+warning: struct `PushersResponse` is never constructed
+   --> crates/ui/src/services/users.rs:158:12
+    |
+158 | pub struct PushersResponse {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `AccountData` is never constructed
+   --> crates/ui/src/services/users.rs:165:12
+    |
+165 | pub struct AccountData {
+    |            ^^^^^^^^^^^
+
+warning: struct `UsersApi` is never constructed
+   --> crates/ui/src/services/users.rs:171:12
+    |
+171 | pub struct UsersApi {
+    |            ^^^^^^^^
+
+warning: multiple associated items are never used
+   --> crates/ui/src/services/users.rs:177:12
+    |
+175 | impl UsersApi {
+    | ------------- associated items in this implementation
+176 |     /// 创建新的用户 API 客户端
+177 |     pub fn new(client: ApiClient) -> Self {
+    |            ^^^
+...
+182 |     pub async fn list_users(&self, params: &UserListParams) -> Result<UserListResponse, ApiError> {
+    |                  ^^^^^^^^^^
+...
+214 |     pub async fn get_user(&self, user_id: &str) -> Result<UserDetail, ApiError> {
+    |                  ^^^^^^^^
+...
+220 |     pub async fn create_or_update_user(
+    |                  ^^^^^^^^^^^^^^^^^^^^^
+...
+230 |     pub async fn deactivate_user(&self, user_id: &str, erase: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^
+...
+238 |     pub async fn reset_password(
+    |                  ^^^^^^^^^^^^^^
+...
+254 |     pub async fn set_admin(&self, user_id: &str, admin: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^
+...
+262 |     pub async fn shadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^
+...
+269 |     pub async fn unshadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+276 |     pub async fn suspend_user(&self, user_id: &str, suspend: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+284 |     pub async fn get_whois(&self, user_id: &str) -> Result<WhoisResponse, ApiError> {
+    |                  ^^^^^^^^^
+...
+290 |     pub async fn get_joined_rooms(&self, user_id: &str) -> Result<JoinedRoomsResponse, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+296 |     pub async fn get_pushers(&self, user_id: &str) -> Result<PushersResponse, ApiError> {
+    |                  ^^^^^^^^^^^
+...
+302 |     pub async fn get_account_data(&self, user_id: &str) -> Result<AccountData, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+308 |     pub async fn get_rate_limit(&self, user_id: &str) -> Result<RateLimitOverride, ApiError> {
+    |                  ^^^^^^^^^^^^^^
+...
+314 |     pub async fn set_rate_limit(
+    |                  ^^^^^^^^^^^^^^
+...
+324 |     pub async fn delete_rate_limit(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^^^
+
+warning: struct `UserListParams` is never constructed
+   --> crates/ui/src/services/users.rs:333:12
+    |
+333 | pub struct UserListParams {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `WhoisResponse` is never constructed
+   --> crates/ui/src/services/users.rs:363:12
+    |
+363 | pub struct WhoisResponse {
+    |            ^^^^^^^^^^^^^
+
+warning: struct `DeviceSessions` is never constructed
+   --> crates/ui/src/services/users.rs:369:12
+    |
+369 | pub struct DeviceSessions {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `SessionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:374:12
+    |
+374 | pub struct SessionInfo {
+    |            ^^^^^^^^^^^
+
+warning: struct `ConnectionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:379:12
+    |
+379 | pub struct ConnectionInfo {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `user_id` is never used
+  --> crates/ui/src/state/auth.rs:61:12
+   |
+46 | impl AuthState {
+   | -------------- method in this implementation
+...
+61 |     pub fn user_id(&self) -> Option<&str> {
+   |            ^^^^^^^
+
+warning: `palpo-ui` (bin "palpo-ui") generated 31 warnings (run `cargo fix --bin "palpo-ui" -p palpo-ui` to apply 7 suggestions)
+warning: `palpo-ui` (lib) generated 31 warnings (31 duplicates)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.67s
+2026-02-02T12:52:32.715053Z  INFO applying new distribution
+2026-02-02T12:52:32.715864Z  INFO ✅ success
+2026-02-02T13:07:40.063595Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variant `Other` is never constructed
+  --> crates/ui/src/services/api.rs:16:5
+   |
+ 8 | pub enum ApiError {
+   |          -------- variant in this enum
+...
+16 |     Other(String),
+   |     ^^^^^
+   |
+   = note: `ApiError` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `with_token`, `token`, `put`, and `delete` are never used
+   --> crates/ui/src/services/api.rs:51:12
+    |
+ 41 | impl ApiClient {
+    | -------------- methods in this implementation
+...
+ 51 |     pub fn with_token(mut self, token: String) -> Self {
+    |            ^^^^^^^^^^
+...
+ 62 |     pub fn token(&self) -> Option<&str> {
+    |            ^^^^^
+...
+116 |     pub async fn put<T: DeserializeOwned, B: Serialize>(
+    |                  ^^^
+...
+140 |     pub async fn delete<T: DeserializeOwned>(&self, path: &str) -> Result<T, ApiError> {
+    |                  ^^^^^^
+
+warning: struct `ApiResponse` is never constructed
+   --> crates/ui/src/services/api.rs:202:12
+    |
+202 | pub struct ApiResponse<T> {
+    |            ^^^^^^^^^^^
+
+warning: associated functions `success` and `error` are never used
+   --> crates/ui/src/services/api.rs:210:12
+    |
+208 | impl<T> ApiResponse<T> {
+    | ---------------------- associated functions in this implementation
+209 |     /// 创建成功响应
+210 |     pub fn success(data: T) -> Self {
+    |            ^^^^^^^
+...
+219 |     pub fn error(msg: String) -> Self {
+    |            ^^^^^
+
+warning: struct `UserInfo` is never constructed
+ --> crates/ui/src/services/users.rs:9:12
+  |
+9 | pub struct UserInfo {
+  |            ^^^^^^^^
+
+warning: struct `ExternalId` is never constructed
+  --> crates/ui/src/services/users.rs:37:12
+   |
+37 | pub struct ExternalId {
+   |            ^^^^^^^^^^
+
+warning: struct `UserListResponse` is never constructed
+  --> crates/ui/src/services/users.rs:46:12
+   |
+46 | pub struct UserListResponse {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: struct `UserDetail` is never constructed
+  --> crates/ui/src/services/users.rs:55:12
+   |
+55 | pub struct UserDetail {
+   |            ^^^^^^^^^^
+
+warning: struct `ThreePid` is never constructed
+  --> crates/ui/src/services/users.rs:84:12
+   |
+84 | pub struct ThreePid {
+   |            ^^^^^^^^
+
+warning: struct `CreateUserRequest` is never constructed
+  --> crates/ui/src/services/users.rs:95:12
+   |
+95 | pub struct CreateUserRequest {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `ResetPasswordRequest` is never constructed
+   --> crates/ui/src/services/users.rs:114:12
+    |
+114 | pub struct ResetPasswordRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RateLimitOverride` is never constructed
+   --> crates/ui/src/services/users.rs:123:12
+    |
+123 | pub struct RateLimitOverride {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `JoinedRoomsResponse` is never constructed
+   --> crates/ui/src/services/users.rs:132:12
+    |
+132 | pub struct JoinedRoomsResponse {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Pusher` is never constructed
+   --> crates/ui/src/services/users.rs:140:12
+    |
+140 | pub struct Pusher {
+    |            ^^^^^^
+
+warning: struct `PushersResponse` is never constructed
+   --> crates/ui/src/services/users.rs:158:12
+    |
+158 | pub struct PushersResponse {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `AccountData` is never constructed
+   --> crates/ui/src/services/users.rs:165:12
+    |
+165 | pub struct AccountData {
+    |            ^^^^^^^^^^^
+
+warning: struct `UsersApi` is never constructed
+   --> crates/ui/src/services/users.rs:171:12
+    |
+171 | pub struct UsersApi {
+    |            ^^^^^^^^
+
+warning: multiple associated items are never used
+   --> crates/ui/src/services/users.rs:177:12
+    |
+175 | impl UsersApi {
+    | ------------- associated items in this implementation
+176 |     /// 创建新的用户 API 客户端
+177 |     pub fn new(client: ApiClient) -> Self {
+    |            ^^^
+...
+182 |     pub async fn list_users(&self, params: &UserListParams) -> Result<UserListResponse, ApiError> {
+    |                  ^^^^^^^^^^
+...
+214 |     pub async fn get_user(&self, user_id: &str) -> Result<UserDetail, ApiError> {
+    |                  ^^^^^^^^
+...
+220 |     pub async fn create_or_update_user(
+    |                  ^^^^^^^^^^^^^^^^^^^^^
+...
+230 |     pub async fn deactivate_user(&self, user_id: &str, erase: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^
+...
+238 |     pub async fn reset_password(
+    |                  ^^^^^^^^^^^^^^
+...
+254 |     pub async fn set_admin(&self, user_id: &str, admin: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^
+...
+262 |     pub async fn shadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^
+...
+269 |     pub async fn unshadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+276 |     pub async fn suspend_user(&self, user_id: &str, suspend: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+284 |     pub async fn get_whois(&self, user_id: &str) -> Result<WhoisResponse, ApiError> {
+    |                  ^^^^^^^^^
+...
+290 |     pub async fn get_joined_rooms(&self, user_id: &str) -> Result<JoinedRoomsResponse, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+296 |     pub async fn get_pushers(&self, user_id: &str) -> Result<PushersResponse, ApiError> {
+    |                  ^^^^^^^^^^^
+...
+302 |     pub async fn get_account_data(&self, user_id: &str) -> Result<AccountData, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+308 |     pub async fn get_rate_limit(&self, user_id: &str) -> Result<RateLimitOverride, ApiError> {
+    |                  ^^^^^^^^^^^^^^
+...
+314 |     pub async fn set_rate_limit(
+    |                  ^^^^^^^^^^^^^^
+...
+324 |     pub async fn delete_rate_limit(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^^^
+
+warning: struct `UserListParams` is never constructed
+   --> crates/ui/src/services/users.rs:333:12
+    |
+333 | pub struct UserListParams {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `WhoisResponse` is never constructed
+   --> crates/ui/src/services/users.rs:363:12
+    |
+363 | pub struct WhoisResponse {
+    |            ^^^^^^^^^^^^^
+
+warning: struct `DeviceSessions` is never constructed
+   --> crates/ui/src/services/users.rs:369:12
+    |
+369 | pub struct DeviceSessions {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `SessionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:374:12
+    |
+374 | pub struct SessionInfo {
+    |            ^^^^^^^^^^^
+
+warning: struct `ConnectionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:379:12
+    |
+379 | pub struct ConnectionInfo {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `user_id` is never used
+  --> crates/ui/src/state/auth.rs:61:12
+   |
+46 | impl AuthState {
+   | -------------- method in this implementation
+...
+61 |     pub fn user_id(&self) -> Option<&str> {
+   |            ^^^^^^^
+
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+warning: `palpo-ui` (bin "palpo-ui") generated 31 warnings (run `cargo fix --bin "palpo-ui" -p palpo-ui` to apply 7 suggestions)
+error[E0308]: mismatched types
+   --> crates/ui/src/lib.rs:34:22
+    |
+ 34 |     leptos::mount_to(app_element, App);
+    |     ---------------- ^^^^^^^^^^^ expected `HtmlElement`, found `Element`
+    |     |
+    |     arguments to this function are incorrect
+    |
+note: function defined here
+   --> /Users/tmacy/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f/leptos_dom-0.6.15/src/lib.rs:987:8
+    |
+987 | pub fn mount_to<F, N>(parent: web_sys::HtmlElement, f: F)
+    |        ^^^^^^^^
+
+For more information about this error, try `rustc --explain E0308`.
+warning: `palpo-ui` (lib) generated 7 warnings (7 duplicates)
+error: could not compile `palpo-ui` (lib) due to 1 previous error; 7 warnings emitted
+2026-02-02T13:07:42.886626Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101
+2026-02-02T13:08:42.172942Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variant `Other` is never constructed
+  --> crates/ui/src/services/api.rs:16:5
+   |
+ 8 | pub enum ApiError {
+   |          -------- variant in this enum
+...
+16 |     Other(String),
+   |     ^^^^^
+   |
+   = note: `ApiError` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `with_token`, `token`, `put`, and `delete` are never used
+   --> crates/ui/src/services/api.rs:51:12
+    |
+ 41 | impl ApiClient {
+    | -------------- methods in this implementation
+...
+ 51 |     pub fn with_token(mut self, token: String) -> Self {
+    |            ^^^^^^^^^^
+...
+ 62 |     pub fn token(&self) -> Option<&str> {
+    |            ^^^^^
+...
+116 |     pub async fn put<T: DeserializeOwned, B: Serialize>(
+    |                  ^^^
+...
+140 |     pub async fn delete<T: DeserializeOwned>(&self, path: &str) -> Result<T, ApiError> {
+    |                  ^^^^^^
+
+warning: struct `ApiResponse` is never constructed
+   --> crates/ui/src/services/api.rs:202:12
+    |
+202 | pub struct ApiResponse<T> {
+    |            ^^^^^^^^^^^
+
+warning: associated functions `success` and `error` are never used
+   --> crates/ui/src/services/api.rs:210:12
+    |
+208 | impl<T> ApiResponse<T> {
+    | ---------------------- associated functions in this implementation
+209 |     /// 创建成功响应
+210 |     pub fn success(data: T) -> Self {
+    |            ^^^^^^^
+...
+219 |     pub fn error(msg: String) -> Self {
+    |            ^^^^^
+
+warning: struct `UserInfo` is never constructed
+ --> crates/ui/src/services/users.rs:9:12
+  |
+9 | pub struct UserInfo {
+  |            ^^^^^^^^
+
+warning: struct `ExternalId` is never constructed
+  --> crates/ui/src/services/users.rs:37:12
+   |
+37 | pub struct ExternalId {
+   |            ^^^^^^^^^^
+
+warning: struct `UserListResponse` is never constructed
+  --> crates/ui/src/services/users.rs:46:12
+   |
+46 | pub struct UserListResponse {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: struct `UserDetail` is never constructed
+  --> crates/ui/src/services/users.rs:55:12
+   |
+55 | pub struct UserDetail {
+   |            ^^^^^^^^^^
+
+warning: struct `ThreePid` is never constructed
+  --> crates/ui/src/services/users.rs:84:12
+   |
+84 | pub struct ThreePid {
+   |            ^^^^^^^^
+
+warning: struct `CreateUserRequest` is never constructed
+  --> crates/ui/src/services/users.rs:95:12
+   |
+95 | pub struct CreateUserRequest {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `ResetPasswordRequest` is never constructed
+   --> crates/ui/src/services/users.rs:114:12
+    |
+114 | pub struct ResetPasswordRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RateLimitOverride` is never constructed
+   --> crates/ui/src/services/users.rs:123:12
+    |
+123 | pub struct RateLimitOverride {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `JoinedRoomsResponse` is never constructed
+   --> crates/ui/src/services/users.rs:132:12
+    |
+132 | pub struct JoinedRoomsResponse {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Pusher` is never constructed
+   --> crates/ui/src/services/users.rs:140:12
+    |
+140 | pub struct Pusher {
+    |            ^^^^^^
+
+warning: struct `PushersResponse` is never constructed
+   --> crates/ui/src/services/users.rs:158:12
+    |
+158 | pub struct PushersResponse {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `AccountData` is never constructed
+   --> crates/ui/src/services/users.rs:165:12
+    |
+165 | pub struct AccountData {
+    |            ^^^^^^^^^^^
+
+warning: struct `UsersApi` is never constructed
+   --> crates/ui/src/services/users.rs:171:12
+    |
+171 | pub struct UsersApi {
+    |            ^^^^^^^^
+
+warning: multiple associated items are never used
+   --> crates/ui/src/services/users.rs:177:12
+    |
+175 | impl UsersApi {
+    | ------------- associated items in this implementation
+176 |     /// 创建新的用户 API 客户端
+177 |     pub fn new(client: ApiClient) -> Self {
+    |            ^^^
+...
+182 |     pub async fn list_users(&self, params: &UserListParams) -> Result<UserListResponse, ApiError> {
+    |                  ^^^^^^^^^^
+...
+214 |     pub async fn get_user(&self, user_id: &str) -> Result<UserDetail, ApiError> {
+    |                  ^^^^^^^^
+...
+220 |     pub async fn create_or_update_user(
+    |                  ^^^^^^^^^^^^^^^^^^^^^
+...
+230 |     pub async fn deactivate_user(&self, user_id: &str, erase: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^
+...
+238 |     pub async fn reset_password(
+    |                  ^^^^^^^^^^^^^^
+...
+254 |     pub async fn set_admin(&self, user_id: &str, admin: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^
+...
+262 |     pub async fn shadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^
+...
+269 |     pub async fn unshadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+276 |     pub async fn suspend_user(&self, user_id: &str, suspend: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+284 |     pub async fn get_whois(&self, user_id: &str) -> Result<WhoisResponse, ApiError> {
+    |                  ^^^^^^^^^
+...
+290 |     pub async fn get_joined_rooms(&self, user_id: &str) -> Result<JoinedRoomsResponse, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+296 |     pub async fn get_pushers(&self, user_id: &str) -> Result<PushersResponse, ApiError> {
+    |                  ^^^^^^^^^^^
+...
+302 |     pub async fn get_account_data(&self, user_id: &str) -> Result<AccountData, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+308 |     pub async fn get_rate_limit(&self, user_id: &str) -> Result<RateLimitOverride, ApiError> {
+    |                  ^^^^^^^^^^^^^^
+...
+314 |     pub async fn set_rate_limit(
+    |                  ^^^^^^^^^^^^^^
+...
+324 |     pub async fn delete_rate_limit(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^^^
+
+warning: struct `UserListParams` is never constructed
+   --> crates/ui/src/services/users.rs:333:12
+    |
+333 | pub struct UserListParams {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `WhoisResponse` is never constructed
+   --> crates/ui/src/services/users.rs:363:12
+    |
+363 | pub struct WhoisResponse {
+    |            ^^^^^^^^^^^^^
+
+warning: struct `DeviceSessions` is never constructed
+   --> crates/ui/src/services/users.rs:369:12
+    |
+369 | pub struct DeviceSessions {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `SessionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:374:12
+    |
+374 | pub struct SessionInfo {
+    |            ^^^^^^^^^^^
+
+warning: struct `ConnectionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:379:12
+    |
+379 | pub struct ConnectionInfo {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `user_id` is never used
+  --> crates/ui/src/state/auth.rs:61:12
+   |
+46 | impl AuthState {
+   | -------------- method in this implementation
+...
+61 |     pub fn user_id(&self) -> Option<&str> {
+   |            ^^^^^^^
+
+warning: `palpo-ui` (bin "palpo-ui") generated 31 warnings (run `cargo fix --bin "palpo-ui" -p palpo-ui` to apply 7 suggestions)
+warning: `palpo-ui` (lib) generated 31 warnings (31 duplicates)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.42s
+2026-02-02T13:08:46.855737Z  INFO applying new distribution
+2026-02-02T13:08:46.856567Z  INFO ✅ success
+2026-02-02T13:22:52.577551Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on artifact directory
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variant `Other` is never constructed
+  --> crates/ui/src/services/api.rs:16:5
+   |
+ 8 | pub enum ApiError {
+   |          -------- variant in this enum
+...
+16 |     Other(String),
+   |     ^^^^^
+   |
+   = note: `ApiError` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `with_token`, `token`, `put`, and `delete` are never used
+   --> crates/ui/src/services/api.rs:51:12
+    |
+ 41 | impl ApiClient {
+    | -------------- methods in this implementation
+...
+ 51 |     pub fn with_token(mut self, token: String) -> Self {
+    |            ^^^^^^^^^^
+...
+ 62 |     pub fn token(&self) -> Option<&str> {
+    |            ^^^^^
+...
+116 |     pub async fn put<T: DeserializeOwned, B: Serialize>(
+    |                  ^^^
+...
+140 |     pub async fn delete<T: DeserializeOwned>(&self, path: &str) -> Result<T, ApiError> {
+    |                  ^^^^^^
+
+warning: struct `ApiResponse` is never constructed
+   --> crates/ui/src/services/api.rs:202:12
+    |
+202 | pub struct ApiResponse<T> {
+    |            ^^^^^^^^^^^
+
+warning: associated functions `success` and `error` are never used
+   --> crates/ui/src/services/api.rs:210:12
+    |
+208 | impl<T> ApiResponse<T> {
+    | ---------------------- associated functions in this implementation
+209 |     /// 创建成功响应
+210 |     pub fn success(data: T) -> Self {
+    |            ^^^^^^^
+...
+219 |     pub fn error(msg: String) -> Self {
+    |            ^^^^^
+
+warning: struct `UserInfo` is never constructed
+ --> crates/ui/src/services/users.rs:9:12
+  |
+9 | pub struct UserInfo {
+  |            ^^^^^^^^
+
+warning: struct `ExternalId` is never constructed
+  --> crates/ui/src/services/users.rs:37:12
+   |
+37 | pub struct ExternalId {
+   |            ^^^^^^^^^^
+
+warning: struct `UserListResponse` is never constructed
+  --> crates/ui/src/services/users.rs:46:12
+   |
+46 | pub struct UserListResponse {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: struct `UserDetail` is never constructed
+  --> crates/ui/src/services/users.rs:55:12
+   |
+55 | pub struct UserDetail {
+   |            ^^^^^^^^^^
+
+warning: struct `ThreePid` is never constructed
+  --> crates/ui/src/services/users.rs:84:12
+   |
+84 | pub struct ThreePid {
+   |            ^^^^^^^^
+
+warning: struct `CreateUserRequest` is never constructed
+  --> crates/ui/src/services/users.rs:95:12
+   |
+95 | pub struct CreateUserRequest {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `ResetPasswordRequest` is never constructed
+   --> crates/ui/src/services/users.rs:114:12
+    |
+114 | pub struct ResetPasswordRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RateLimitOverride` is never constructed
+   --> crates/ui/src/services/users.rs:123:12
+    |
+123 | pub struct RateLimitOverride {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `JoinedRoomsResponse` is never constructed
+   --> crates/ui/src/services/users.rs:132:12
+    |
+132 | pub struct JoinedRoomsResponse {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Pusher` is never constructed
+   --> crates/ui/src/services/users.rs:140:12
+    |
+140 | pub struct Pusher {
+    |            ^^^^^^
+
+warning: struct `PushersResponse` is never constructed
+   --> crates/ui/src/services/users.rs:158:12
+    |
+158 | pub struct PushersResponse {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `AccountData` is never constructed
+   --> crates/ui/src/services/users.rs:165:12
+    |
+165 | pub struct AccountData {
+    |            ^^^^^^^^^^^
+
+warning: struct `UsersApi` is never constructed
+   --> crates/ui/src/services/users.rs:171:12
+    |
+171 | pub struct UsersApi {
+    |            ^^^^^^^^
+
+warning: multiple associated items are never used
+   --> crates/ui/src/services/users.rs:177:12
+    |
+175 | impl UsersApi {
+    | ------------- associated items in this implementation
+176 |     /// 创建新的用户 API 客户端
+177 |     pub fn new(client: ApiClient) -> Self {
+    |            ^^^
+...
+182 |     pub async fn list_users(&self, params: &UserListParams) -> Result<UserListResponse, ApiError> {
+    |                  ^^^^^^^^^^
+...
+214 |     pub async fn get_user(&self, user_id: &str) -> Result<UserDetail, ApiError> {
+    |                  ^^^^^^^^
+...
+220 |     pub async fn create_or_update_user(
+    |                  ^^^^^^^^^^^^^^^^^^^^^
+...
+230 |     pub async fn deactivate_user(&self, user_id: &str, erase: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^
+...
+238 |     pub async fn reset_password(
+    |                  ^^^^^^^^^^^^^^
+...
+254 |     pub async fn set_admin(&self, user_id: &str, admin: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^
+...
+262 |     pub async fn shadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^
+...
+269 |     pub async fn unshadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+276 |     pub async fn suspend_user(&self, user_id: &str, suspend: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+284 |     pub async fn get_whois(&self, user_id: &str) -> Result<WhoisResponse, ApiError> {
+    |                  ^^^^^^^^^
+...
+290 |     pub async fn get_joined_rooms(&self, user_id: &str) -> Result<JoinedRoomsResponse, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+296 |     pub async fn get_pushers(&self, user_id: &str) -> Result<PushersResponse, ApiError> {
+    |                  ^^^^^^^^^^^
+...
+302 |     pub async fn get_account_data(&self, user_id: &str) -> Result<AccountData, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+308 |     pub async fn get_rate_limit(&self, user_id: &str) -> Result<RateLimitOverride, ApiError> {
+    |                  ^^^^^^^^^^^^^^
+...
+314 |     pub async fn set_rate_limit(
+    |                  ^^^^^^^^^^^^^^
+...
+324 |     pub async fn delete_rate_limit(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^^^
+
+warning: struct `UserListParams` is never constructed
+   --> crates/ui/src/services/users.rs:333:12
+    |
+333 | pub struct UserListParams {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `WhoisResponse` is never constructed
+   --> crates/ui/src/services/users.rs:363:12
+    |
+363 | pub struct WhoisResponse {
+    |            ^^^^^^^^^^^^^
+
+warning: struct `DeviceSessions` is never constructed
+   --> crates/ui/src/services/users.rs:369:12
+    |
+369 | pub struct DeviceSessions {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `SessionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:374:12
+    |
+374 | pub struct SessionInfo {
+    |            ^^^^^^^^^^^
+
+warning: struct `ConnectionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:379:12
+    |
+379 | pub struct ConnectionInfo {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `user_id` is never used
+  --> crates/ui/src/state/auth.rs:61:12
+   |
+46 | impl AuthState {
+   | -------------- method in this implementation
+...
+61 |     pub fn user_id(&self) -> Option<&str> {
+   |            ^^^^^^^
+
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+warning: `palpo-ui` (bin "palpo-ui") generated 31 warnings (run `cargo fix --bin "palpo-ui" -p palpo-ui` to apply 7 suggestions)
+error[E0432]: unresolved import `app::ProvideAuthContext`
+  --> crates/ui/src/lib.rs:11:20
+   |
+11 | pub use app::{App, ProvideAuthContext};
+   |                    ^^^^^^^^^^^^^^^^^^
+   |                    |
+   |                    no `ProvideAuthContext` in `app`
+   |                    help: a similar name exists in the module: `provide_context`
+
+For more information about this error, try `rustc --explain E0432`.
+warning: `palpo-ui` (lib) generated 7 warnings (7 duplicates)
+error: could not compile `palpo-ui` (lib) due to 1 previous error; 7 warnings emitted
+2026-02-02T13:22:56.989147Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101
+2026-02-02T13:23:02.967671Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on artifact directory
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variant `Other` is never constructed
+  --> crates/ui/src/services/api.rs:16:5
+   |
+ 8 | pub enum ApiError {
+   |          -------- variant in this enum
+...
+16 |     Other(String),
+   |     ^^^^^
+   |
+   = note: `ApiError` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `with_token`, `token`, `put`, and `delete` are never used
+   --> crates/ui/src/services/api.rs:51:12
+    |
+ 41 | impl ApiClient {
+    | -------------- methods in this implementation
+...
+ 51 |     pub fn with_token(mut self, token: String) -> Self {
+    |            ^^^^^^^^^^
+...
+ 62 |     pub fn token(&self) -> Option<&str> {
+    |            ^^^^^
+...
+116 |     pub async fn put<T: DeserializeOwned, B: Serialize>(
+    |                  ^^^
+...
+140 |     pub async fn delete<T: DeserializeOwned>(&self, path: &str) -> Result<T, ApiError> {
+    |                  ^^^^^^
+
+warning: struct `ApiResponse` is never constructed
+   --> crates/ui/src/services/api.rs:202:12
+    |
+202 | pub struct ApiResponse<T> {
+    |            ^^^^^^^^^^^
+
+warning: associated functions `success` and `error` are never used
+   --> crates/ui/src/services/api.rs:210:12
+    |
+208 | impl<T> ApiResponse<T> {
+    | ---------------------- associated functions in this implementation
+209 |     /// 创建成功响应
+210 |     pub fn success(data: T) -> Self {
+    |            ^^^^^^^
+...
+219 |     pub fn error(msg: String) -> Self {
+    |            ^^^^^
+
+warning: struct `UserInfo` is never constructed
+ --> crates/ui/src/services/users.rs:9:12
+  |
+9 | pub struct UserInfo {
+  |            ^^^^^^^^
+
+warning: struct `ExternalId` is never constructed
+  --> crates/ui/src/services/users.rs:37:12
+   |
+37 | pub struct ExternalId {
+   |            ^^^^^^^^^^
+
+warning: struct `UserListResponse` is never constructed
+  --> crates/ui/src/services/users.rs:46:12
+   |
+46 | pub struct UserListResponse {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: struct `UserDetail` is never constructed
+  --> crates/ui/src/services/users.rs:55:12
+   |
+55 | pub struct UserDetail {
+   |            ^^^^^^^^^^
+
+warning: struct `ThreePid` is never constructed
+  --> crates/ui/src/services/users.rs:84:12
+   |
+84 | pub struct ThreePid {
+   |            ^^^^^^^^
+
+warning: struct `CreateUserRequest` is never constructed
+  --> crates/ui/src/services/users.rs:95:12
+   |
+95 | pub struct CreateUserRequest {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `ResetPasswordRequest` is never constructed
+   --> crates/ui/src/services/users.rs:114:12
+    |
+114 | pub struct ResetPasswordRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RateLimitOverride` is never constructed
+   --> crates/ui/src/services/users.rs:123:12
+    |
+123 | pub struct RateLimitOverride {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `JoinedRoomsResponse` is never constructed
+   --> crates/ui/src/services/users.rs:132:12
+    |
+132 | pub struct JoinedRoomsResponse {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Pusher` is never constructed
+   --> crates/ui/src/services/users.rs:140:12
+    |
+140 | pub struct Pusher {
+    |            ^^^^^^
+
+warning: struct `PushersResponse` is never constructed
+   --> crates/ui/src/services/users.rs:158:12
+    |
+158 | pub struct PushersResponse {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `AccountData` is never constructed
+   --> crates/ui/src/services/users.rs:165:12
+    |
+165 | pub struct AccountData {
+    |            ^^^^^^^^^^^
+
+warning: struct `UsersApi` is never constructed
+   --> crates/ui/src/services/users.rs:171:12
+    |
+171 | pub struct UsersApi {
+    |            ^^^^^^^^
+
+warning: multiple associated items are never used
+   --> crates/ui/src/services/users.rs:177:12
+    |
+175 | impl UsersApi {
+    | ------------- associated items in this implementation
+176 |     /// 创建新的用户 API 客户端
+177 |     pub fn new(client: ApiClient) -> Self {
+    |            ^^^
+...
+182 |     pub async fn list_users(&self, params: &UserListParams) -> Result<UserListResponse, ApiError> {
+    |                  ^^^^^^^^^^
+...
+214 |     pub async fn get_user(&self, user_id: &str) -> Result<UserDetail, ApiError> {
+    |                  ^^^^^^^^
+...
+220 |     pub async fn create_or_update_user(
+    |                  ^^^^^^^^^^^^^^^^^^^^^
+...
+230 |     pub async fn deactivate_user(&self, user_id: &str, erase: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^
+...
+238 |     pub async fn reset_password(
+    |                  ^^^^^^^^^^^^^^
+...
+254 |     pub async fn set_admin(&self, user_id: &str, admin: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^
+...
+262 |     pub async fn shadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^
+...
+269 |     pub async fn unshadow_ban(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+276 |     pub async fn suspend_user(&self, user_id: &str, suspend: bool) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^
+...
+284 |     pub async fn get_whois(&self, user_id: &str) -> Result<WhoisResponse, ApiError> {
+    |                  ^^^^^^^^^
+...
+290 |     pub async fn get_joined_rooms(&self, user_id: &str) -> Result<JoinedRoomsResponse, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+296 |     pub async fn get_pushers(&self, user_id: &str) -> Result<PushersResponse, ApiError> {
+    |                  ^^^^^^^^^^^
+...
+302 |     pub async fn get_account_data(&self, user_id: &str) -> Result<AccountData, ApiError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+308 |     pub async fn get_rate_limit(&self, user_id: &str) -> Result<RateLimitOverride, ApiError> {
+    |                  ^^^^^^^^^^^^^^
+...
+314 |     pub async fn set_rate_limit(
+    |                  ^^^^^^^^^^^^^^
+...
+324 |     pub async fn delete_rate_limit(&self, user_id: &str) -> Result<(), ApiError> {
+    |                  ^^^^^^^^^^^^^^^^^
+
+warning: struct `UserListParams` is never constructed
+   --> crates/ui/src/services/users.rs:333:12
+    |
+333 | pub struct UserListParams {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `WhoisResponse` is never constructed
+   --> crates/ui/src/services/users.rs:363:12
+    |
+363 | pub struct WhoisResponse {
+    |            ^^^^^^^^^^^^^
+
+warning: struct `DeviceSessions` is never constructed
+   --> crates/ui/src/services/users.rs:369:12
+    |
+369 | pub struct DeviceSessions {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `SessionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:374:12
+    |
+374 | pub struct SessionInfo {
+    |            ^^^^^^^^^^^
+
+warning: struct `ConnectionInfo` is never constructed
+   --> crates/ui/src/services/users.rs:379:12
+    |
+379 | pub struct ConnectionInfo {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `user_id` is never used
+  --> crates/ui/src/state/auth.rs:61:12
+   |
+46 | impl AuthState {
+   | -------------- method in this implementation
+...
+61 |     pub fn user_id(&self) -> Option<&str> {
+   |            ^^^^^^^
+
+warning: `palpo-ui` (bin "palpo-ui") generated 31 warnings (run `cargo fix --bin "palpo-ui" -p palpo-ui` to apply 7 suggestions)
+error[E0432]: unresolved import `app::ProvideAuthContext`
+  --> crates/ui/src/lib.rs:11:20
+   |
+11 | pub use app::{App, ProvideAuthContext};
+   |                    ^^^^^^^^^^^^^^^^^^
+   |                    |
+   |                    no `ProvideAuthContext` in `app`
+   |                    help: a similar name exists in the module: `provide_context`
+
+error: cannot find macro `view` in this scope
+  --> crates/ui/src/lib.rs:37:38
+   |
+37 |     leptos::mount_to(app_element, || view! {
+   |                                      ^^^^
+   |
+help: consider importing this macro
+   |
+11 + use leptos::view;
+   |
+
+For more information about this error, try `rustc --explain E0432`.
+warning: `palpo-ui` (lib) generated 7 warnings (7 duplicates)
+error: could not compile `palpo-ui` (lib) due to 2 previous errors; 7 warnings emitted
+2026-02-02T13:23:05.314880Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101
+2026-02-02T13:23:41.719017Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:116:18
+    |
+116 |             <!-- 侧边栏 -->
+    |                  ^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:118:22
+    |
+118 |                 <!-- Logo -->
+    |                      ^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:130:22
+    |
+130 |                 <!-- 导航菜单 -->
+    |                      ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:159:22
+    |
+159 |                 <!-- 用户信息 -->
+    |                      ^^^^^^^^
+
+error: invalid tag name or attribute key
+   --> crates/ui/src/components/layout.rs:178:42
+    |
+178 | ...                   <Icon::Logout.view/>
+    |                                    ^
+
+error: tokens was ignored during parsing
+   --> crates/ui/src/components/layout.rs:178:42
+    |
+178 | ...                   <Icon::Logout.view/>
+    |                                    ^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:184:18
+    |
+184 |             <!-- 主内容区 -->
+    |                  ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:186:22
+    |
+186 |                 <!-- 顶部栏 -->
+    |                      ^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:189:30
+    |
+189 |                         <!-- 面包屑导航 -->
+    |                              ^^^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:194:30
+    |
+194 |                         <!-- 右侧操作 -->
+    |                              ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:196:34
+    |
+196 | ...                   <!-- 刷新按钮 -->
+    |                            ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:207:34
+    |
+207 | ...                   <!-- 通知 -->
+    |                            ^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:219:34
+    |
+219 | ...                   <!-- 用户头像 -->
+    |                            ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:228:22
+    |
+228 |                 <!-- 页面内容 -->
+    |                      ^^^^^^^^
+
+warning: unused imports: `Breadcrumb`, `MainLayout`, and `PageCard`
+ --> crates/ui/src/components/mod.rs:5:18
+  |
+5 | pub use layout::{MainLayout, Breadcrumb, PageCard};
+  |                  ^^^^^^^^^^  ^^^^^^^^^^  ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+error[E0432]: unresolved import `app::ProvideAuthContext`
+  --> crates/ui/src/lib.rs:11:20
+   |
+11 | pub use app::{App, ProvideAuthContext};
+   |                    ^^^^^^^^^^^^^^^^^^
+   |                    |
+   |                    no `ProvideAuthContext` in `app`
+   |                    help: a similar name exists in the module: `provide_context`
+
+error: cannot find macro `view` in this scope
+  --> crates/ui/src/lib.rs:37:38
+   |
+37 |     leptos::mount_to(app_element, || view! {
+   |                                      ^^^^
+   |
+help: consider importing this macro
+   |
+11 + use leptos::view;
+   |
+
+error[E0277]: the trait bound `&Icon: ComponentConstructor<_>` is not satisfied
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ the trait `ComponentConstructor<_>` is not implemented for `&Icon`
+    |
+note: required by a bound in `component_view`
+   --> /Users/tmacy/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f/leptos-0.6.15/src/lib.rs:348:34
+    |
+348 | pub fn component_view<P>(f: impl ComponentConstructor<P>, props: P) -> View {
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `component_view`
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `Icon: leptos::Component<_>` is not satisfied
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ unsatisfied trait bound
+    |
+help: the trait `leptos::Component<_>` is not implemented for `Icon`
+   --> crates/ui/src/components/layout.rs:16:1
+    |
+ 16 | enum Icon {
+    | ^^^^^^^^^
+note: required by a bound in `component_props_builder`
+   --> /Users/tmacy/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f/leptos-0.6.15/src/lib.rs:342:15
+    |
+341 | pub fn component_props_builder<P: PropsOrNoPropsBuilder>(
+    |        ----------------------- required by a bound in this function
+342 |     _f: &impl Component<P>,
+    |               ^^^^^^^^^^^^ required by this bound in `component_props_builder`
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ cannot infer type
+    |
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0689]: can't call method `then` on ambiguous numeric type `{integer}`
+   --> crates/ui/src/components/layout.rs:282:32
+    |
+282 |                         {i > 0.then(|| view! {
+    |                                ^^^^
+    |
+help: you must specify a concrete type for this numeric value, like `i32`
+    |
+282 |                         {i > 0_i32.then(|| view! {
+    |                               ++++
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0277, E0282, E0689.
+For more information about an error, try `rustc --explain E0277`.
+warning: `palpo-ui` (bin "palpo-ui") generated 8 warnings
+error: could not compile `palpo-ui` (bin "palpo-ui") due to 18 previous errors; 8 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+Some errors have detailed explanations: E0277, E0282, E0432, E0689.
+warning: `palpo-ui` (lib) generated 8 warnings (8 duplicates)
+error: could not compile `palpo-ui` (lib) due to 20 previous errors; 8 warnings emitted
+2026-02-02T13:23:44.024256Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101
+2026-02-02T13:23:57.411759Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on artifact directory
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:116:18
+    |
+116 |             <!-- 侧边栏 -->
+    |                  ^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:118:22
+    |
+118 |                 <!-- Logo -->
+    |                      ^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:130:22
+    |
+130 |                 <!-- 导航菜单 -->
+    |                      ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:159:22
+    |
+159 |                 <!-- 用户信息 -->
+    |                      ^^^^^^^^
+
+error: invalid tag name or attribute key
+   --> crates/ui/src/components/layout.rs:178:42
+    |
+178 | ...                   <Icon::Logout.view/>
+    |                                    ^
+
+error: tokens was ignored during parsing
+   --> crates/ui/src/components/layout.rs:178:42
+    |
+178 | ...                   <Icon::Logout.view/>
+    |                                    ^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:184:18
+    |
+184 |             <!-- 主内容区 -->
+    |                  ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:186:22
+    |
+186 |                 <!-- 顶部栏 -->
+    |                      ^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:189:30
+    |
+189 |                         <!-- 面包屑导航 -->
+    |                              ^^^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:194:30
+    |
+194 |                         <!-- 右侧操作 -->
+    |                              ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:196:34
+    |
+196 | ...                   <!-- 刷新按钮 -->
+    |                            ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:207:34
+    |
+207 | ...                   <!-- 通知 -->
+    |                            ^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:219:34
+    |
+219 | ...                   <!-- 用户头像 -->
+    |                            ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:228:22
+    |
+228 |                 <!-- 页面内容 -->
+    |                      ^^^^^^^^
+
+warning: unused import: `crate::components::MainLayout`
+ --> crates/ui/src/app.rs:8:5
+  |
+8 | use crate::components::MainLayout;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Breadcrumb` and `PageCard`
+ --> crates/ui/src/components/mod.rs:5:30
+  |
+5 | pub use layout::{MainLayout, Breadcrumb, PageCard};
+  |                              ^^^^^^^^^^  ^^^^^^^^
+
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+error[E0432]: unresolved import `app::ProvideAuthContext`
+  --> crates/ui/src/lib.rs:11:20
+   |
+11 | pub use app::{App, ProvideAuthContext};
+   |                    ^^^^^^^^^^^^^^^^^^
+   |                    |
+   |                    no `ProvideAuthContext` in `app`
+   |                    help: a similar name exists in the module: `provide_context`
+
+error: cannot find macro `view` in this scope
+  --> crates/ui/src/lib.rs:37:38
+   |
+37 |     leptos::mount_to(app_element, || view! {
+   |                                      ^^^^
+   |
+help: consider importing this macro
+   |
+11 + use leptos::view;
+   |
+
+error[E0277]: the trait bound `&Icon: ComponentConstructor<_>` is not satisfied
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ the trait `ComponentConstructor<_>` is not implemented for `&Icon`
+    |
+note: required by a bound in `component_view`
+   --> /Users/tmacy/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f/leptos-0.6.15/src/lib.rs:348:34
+    |
+348 | pub fn component_view<P>(f: impl ComponentConstructor<P>, props: P) -> View {
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `component_view`
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `Icon: leptos::Component<_>` is not satisfied
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ unsatisfied trait bound
+    |
+help: the trait `leptos::Component<_>` is not implemented for `Icon`
+   --> crates/ui/src/components/layout.rs:16:1
+    |
+ 16 | enum Icon {
+    | ^^^^^^^^^
+note: required by a bound in `component_props_builder`
+   --> /Users/tmacy/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f/leptos-0.6.15/src/lib.rs:342:15
+    |
+341 | pub fn component_props_builder<P: PropsOrNoPropsBuilder>(
+    |        ----------------------- required by a bound in this function
+342 |     _f: &impl Component<P>,
+    |               ^^^^^^^^^^^^ required by this bound in `component_props_builder`
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ cannot infer type
+    |
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0689]: can't call method `then` on ambiguous numeric type `{integer}`
+   --> crates/ui/src/components/layout.rs:282:32
+    |
+282 |                         {i > 0.then(|| view! {
+    |                                ^^^^
+    |
+help: you must specify a concrete type for this numeric value, like `i32`
+    |
+282 |                         {i > 0_i32.then(|| view! {
+    |                               ++++
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0277, E0282, E0689.
+For more information about an error, try `rustc --explain E0277`.
+warning: `palpo-ui` (bin "palpo-ui") generated 9 warnings
+error: could not compile `palpo-ui` (bin "palpo-ui") due to 18 previous errors; 9 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+Some errors have detailed explanations: E0277, E0282, E0432, E0689.
+warning: `palpo-ui` (lib) generated 9 warnings (9 duplicates)
+error: could not compile `palpo-ui` (lib) due to 20 previous errors; 9 warnings emitted
+2026-02-02T13:24:00.174939Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101
+2026-02-02T13:24:05.228576Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:116:18
+    |
+116 |             <!-- 侧边栏 -->
+    |                  ^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:118:22
+    |
+118 |                 <!-- Logo -->
+    |                      ^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:130:22
+    |
+130 |                 <!-- 导航菜单 -->
+    |                      ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:159:22
+    |
+159 |                 <!-- 用户信息 -->
+    |                      ^^^^^^^^
+
+error: invalid tag name or attribute key
+   --> crates/ui/src/components/layout.rs:178:42
+    |
+178 | ...                   <Icon::Logout.view/>
+    |                                    ^
+
+error: tokens was ignored during parsing
+   --> crates/ui/src/components/layout.rs:178:42
+    |
+178 | ...                   <Icon::Logout.view/>
+    |                                    ^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:184:18
+    |
+184 |             <!-- 主内容区 -->
+    |                  ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:186:22
+    |
+186 |                 <!-- 顶部栏 -->
+    |                      ^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:189:30
+    |
+189 |                         <!-- 面包屑导航 -->
+    |                              ^^^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:194:30
+    |
+194 |                         <!-- 右侧操作 -->
+    |                              ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:196:34
+    |
+196 | ...                   <!-- 刷新按钮 -->
+    |                            ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:207:34
+    |
+207 | ...                   <!-- 通知 -->
+    |                            ^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:219:34
+    |
+219 | ...                   <!-- 用户头像 -->
+    |                            ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:228:22
+    |
+228 |                 <!-- 页面内容 -->
+    |                      ^^^^^^^^
+
+error[E0432]: unresolved import `app::ProvideAuthContext`
+  --> crates/ui/src/lib.rs:11:20
+   |
+11 | pub use app::{App, ProvideAuthContext};
+   |                    ^^^^^^^^^^^^^^^^^^
+   |                    |
+   |                    no `ProvideAuthContext` in `app`
+   |                    help: a similar name exists in the module: `provide_context`
+
+warning: unused import: `crate::components::MainLayout`
+ --> crates/ui/src/app.rs:8:5
+  |
+8 | use crate::components::MainLayout;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Breadcrumb` and `PageCard`
+ --> crates/ui/src/components/mod.rs:5:30
+  |
+5 | pub use layout::{MainLayout, Breadcrumb, PageCard};
+  |                              ^^^^^^^^^^  ^^^^^^^^
+
+warning: unused import: `crate::components::MainLayout`
+ --> crates/ui/src/pages/dashboard.rs:4:5
+  |
+4 | use crate::components::MainLayout;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: cannot find macro `view` in this scope
+  --> crates/ui/src/lib.rs:37:38
+   |
+37 |     leptos::mount_to(app_element, || view! {
+   |                                      ^^^^
+   |
+help: consider importing this macro
+   |
+11 + use leptos::view;
+   |
+
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+error[E0277]: the trait bound `&Icon: ComponentConstructor<_>` is not satisfied
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ the trait `ComponentConstructor<_>` is not implemented for `&Icon`
+    |
+note: required by a bound in `component_view`
+   --> /Users/tmacy/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f/leptos-0.6.15/src/lib.rs:348:34
+    |
+348 | pub fn component_view<P>(f: impl ComponentConstructor<P>, props: P) -> View {
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `component_view`
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `Icon: leptos::Component<_>` is not satisfied
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ unsatisfied trait bound
+    |
+help: the trait `leptos::Component<_>` is not implemented for `Icon`
+   --> crates/ui/src/components/layout.rs:16:1
+    |
+ 16 | enum Icon {
+    | ^^^^^^^^^
+note: required by a bound in `component_props_builder`
+   --> /Users/tmacy/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f/leptos-0.6.15/src/lib.rs:342:15
+    |
+341 | pub fn component_props_builder<P: PropsOrNoPropsBuilder>(
+    |        ----------------------- required by a bound in this function
+342 |     _f: &impl Component<P>,
+    |               ^^^^^^^^^^^^ required by this bound in `component_props_builder`
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ cannot infer type
+    |
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0689]: can't call method `then` on ambiguous numeric type `{integer}`
+   --> crates/ui/src/components/layout.rs:282:32
+    |
+282 |                         {i > 0.then(|| view! {
+    |                                ^^^^
+    |
+help: you must specify a concrete type for this numeric value, like `i32`
+    |
+282 |                         {i > 0_i32.then(|| view! {
+    |                               ++++
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0277, E0282, E0689.
+For more information about an error, try `rustc --explain E0277`.
+warning: `palpo-ui` (bin "palpo-ui") generated 10 warnings
+error: could not compile `palpo-ui` (bin "palpo-ui") due to 18 previous errors; 10 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+Some errors have detailed explanations: E0277, E0282, E0432, E0689.
+warning: `palpo-ui` (lib) generated 10 warnings (10 duplicates)
+error: could not compile `palpo-ui` (lib) due to 20 previous errors; 10 warnings emitted
+2026-02-02T13:24:06.623673Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101
+2026-02-02T13:24:12.579626Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:116:18
+    |
+116 |             <!-- 侧边栏 -->
+    |                  ^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:118:22
+    |
+118 |                 <!-- Logo -->
+    |                      ^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:130:22
+    |
+130 |                 <!-- 导航菜单 -->
+    |                      ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:159:22
+    |
+159 |                 <!-- 用户信息 -->
+    |                      ^^^^^^^^
+
+error: invalid tag name or attribute key
+   --> crates/ui/src/components/layout.rs:178:42
+    |
+178 | ...                   <Icon::Logout.view/>
+    |                                    ^
+
+error: tokens was ignored during parsing
+   --> crates/ui/src/components/layout.rs:178:42
+    |
+178 | ...                   <Icon::Logout.view/>
+    |                                    ^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:184:18
+    |
+184 |             <!-- 主内容区 -->
+    |                  ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:186:22
+    |
+186 |                 <!-- 顶部栏 -->
+    |                      ^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:189:30
+    |
+189 |                         <!-- 面包屑导航 -->
+    |                              ^^^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:194:30
+    |
+194 |                         <!-- 右侧操作 -->
+    |                              ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:196:34
+    |
+196 | ...                   <!-- 刷新按钮 -->
+    |                            ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:207:34
+    |
+207 | ...                   <!-- 通知 -->
+    |                            ^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:219:34
+    |
+219 | ...                   <!-- 用户头像 -->
+    |                            ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:228:22
+    |
+228 |                 <!-- 页面内容 -->
+    |                      ^^^^^^^^
+
+error: open tag has no corresponding close tag
+  --> crates/ui/src/pages/dashboard.rs:15:9
+   |
+15 |         <MainLayout>
+   |         ^
+
+error: ␛[1;34m[␛[0m␛[1;32mnote␛[0m␛[1;34m] ␛[0m␛[1;39mtreating all inputs after open tag as it content␛[0m
+  --> crates/ui/src/pages/dashboard.rs:16:13
+   |
+16 |             <div class="p-6 space-y-6">
+   |             ^
+
+error[E0432]: unresolved import `app::ProvideAuthContext`
+  --> crates/ui/src/lib.rs:11:20
+   |
+11 | pub use app::{App, ProvideAuthContext};
+   |                    ^^^^^^^^^^^^^^^^^^
+   |                    |
+   |                    no `ProvideAuthContext` in `app`
+   |                    help: a similar name exists in the module: `provide_context`
+
+warning: unused import: `crate::components::MainLayout`
+ --> crates/ui/src/app.rs:8:5
+  |
+8 | use crate::components::MainLayout;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Breadcrumb` and `PageCard`
+ --> crates/ui/src/components/mod.rs:5:30
+  |
+5 | pub use layout::{MainLayout, Breadcrumb, PageCard};
+  |                              ^^^^^^^^^^  ^^^^^^^^
+
+error: cannot find macro `view` in this scope
+  --> crates/ui/src/lib.rs:37:38
+   |
+37 |     leptos::mount_to(app_element, || view! {
+   |                                      ^^^^
+   |
+help: consider importing this macro
+   |
+11 + use leptos::view;
+   |
+
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+error[E0277]: the trait bound `&Icon: ComponentConstructor<_>` is not satisfied
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ the trait `ComponentConstructor<_>` is not implemented for `&Icon`
+    |
+note: required by a bound in `component_view`
+   --> /Users/tmacy/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f/leptos-0.6.15/src/lib.rs:348:34
+    |
+348 | pub fn component_view<P>(f: impl ComponentConstructor<P>, props: P) -> View {
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `component_view`
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `Icon: leptos::Component<_>` is not satisfied
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ unsatisfied trait bound
+    |
+help: the trait `leptos::Component<_>` is not implemented for `Icon`
+   --> crates/ui/src/components/layout.rs:16:1
+    |
+ 16 | enum Icon {
+    | ^^^^^^^^^
+note: required by a bound in `component_props_builder`
+   --> /Users/tmacy/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f/leptos-0.6.15/src/lib.rs:342:15
+    |
+341 | pub fn component_props_builder<P: PropsOrNoPropsBuilder>(
+    |        ----------------------- required by a bound in this function
+342 |     _f: &impl Component<P>,
+    |               ^^^^^^^^^^^^ required by this bound in `component_props_builder`
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ cannot infer type
+    |
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0689]: can't call method `then` on ambiguous numeric type `{integer}`
+   --> crates/ui/src/components/layout.rs:282:32
+    |
+282 |                         {i > 0.then(|| view! {
+    |                                ^^^^
+    |
+help: you must specify a concrete type for this numeric value, like `i32`
+    |
+282 |                         {i > 0_i32.then(|| view! {
+    |                               ++++
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0277, E0282, E0689.
+For more information about an error, try `rustc --explain E0277`.
+warning: `palpo-ui` (bin "palpo-ui") generated 9 warnings
+error: could not compile `palpo-ui` (bin "palpo-ui") due to 20 previous errors; 9 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+Some errors have detailed explanations: E0277, E0282, E0432, E0689.
+warning: `palpo-ui` (lib) generated 9 warnings (9 duplicates)
+error: could not compile `palpo-ui` (lib) due to 22 previous errors; 9 warnings emitted
+2026-02-02T13:24:13.950331Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101
+2026-02-02T13:24:19.965748Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:116:18
+    |
+116 |             <!-- 侧边栏 -->
+    |                  ^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:118:22
+    |
+118 |                 <!-- Logo -->
+    |                      ^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:130:22
+    |
+130 |                 <!-- 导航菜单 -->
+    |                      ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:159:22
+    |
+159 |                 <!-- 用户信息 -->
+    |                      ^^^^^^^^
+
+error: invalid tag name or attribute key
+   --> crates/ui/src/components/layout.rs:178:42
+    |
+178 | ...                   <Icon::Logout.view/>
+    |                                    ^
+
+error: tokens was ignored during parsing
+   --> crates/ui/src/components/layout.rs:178:42
+    |
+178 | ...                   <Icon::Logout.view/>
+    |                                    ^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:184:18
+    |
+184 |             <!-- 主内容区 -->
+    |                  ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:186:22
+    |
+186 |                 <!-- 顶部栏 -->
+    |                      ^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:189:30
+    |
+189 |                         <!-- 面包屑导航 -->
+    |                              ^^^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:194:30
+    |
+194 |                         <!-- 右侧操作 -->
+    |                              ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:196:34
+    |
+196 | ...                   <!-- 刷新按钮 -->
+    |                            ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:207:34
+    |
+207 | ...                   <!-- 通知 -->
+    |                            ^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:219:34
+    |
+219 | ...                   <!-- 用户头像 -->
+    |                            ^^^^^^^^
+
+error: expected string literal
+   --> crates/ui/src/components/layout.rs:228:22
+    |
+228 |                 <!-- 页面内容 -->
+    |                      ^^^^^^^^
+
+error: wrong close tag found
+   --> crates/ui/src/pages/dashboard.rs:221:9
+    |
+221 |         </MainLayout>
+    |         ^
+
+error: ␛[1;34m[␛[0m␛[1;36mhelp␛[0m␛[1;34m] ␛[0m␛[1;39mopen tag that should be closed; it's started here␛[0m
+  --> crates/ui/src/pages/dashboard.rs:16:13
+   |
+16 |             <div class="p-6 space-y-6">
+   |             ^
+
+error: open tag has no corresponding close tag
+  --> crates/ui/src/pages/dashboard.rs:15:9
+   |
+15 |         <MainLayout>
+   |         ^
+
+error: ␛[1;34m[␛[0m␛[1;32mnote␛[0m␛[1;34m] ␛[0m␛[1;39mtreating all inputs after open tag as it content␛[0m
+  --> crates/ui/src/pages/dashboard.rs:16:13
+   |
+16 |             <div class="p-6 space-y-6">
+   |             ^
+
+error[E0432]: unresolved import `app::ProvideAuthContext`
+  --> crates/ui/src/lib.rs:11:20
+   |
+11 | pub use app::{App, ProvideAuthContext};
+   |                    ^^^^^^^^^^^^^^^^^^
+   |                    |
+   |                    no `ProvideAuthContext` in `app`
+   |                    help: a similar name exists in the module: `provide_context`
+
+error: cannot find macro `view` in this scope
+  --> crates/ui/src/lib.rs:37:38
+   |
+37 |     leptos::mount_to(app_element, || view! {
+   |                                      ^^^^
+   |
+help: consider importing this macro
+   |
+11 + use leptos::view;
+   |
+
+error[E0425]: cannot find value `MainLayout` in module `leptos::leptos_dom::html`
+   --> crates/ui/src/pages/dashboard.rs:221:11
+    |
+221 |         </MainLayout>
+    |           ^^^^^^^^^^ not found in `leptos::leptos_dom::html`
+    |
+help: consider importing this function through its public re-export
+    |
+  3 + use crate::pages::dashboard::MainLayout;
+    |
+
+warning: unused import: `crate::components::MainLayout`
+ --> crates/ui/src/app.rs:8:5
+  |
+8 | use crate::components::MainLayout;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Breadcrumb` and `PageCard`
+ --> crates/ui/src/components/mod.rs:5:30
+  |
+5 | pub use layout::{MainLayout, Breadcrumb, PageCard};
+  |                              ^^^^^^^^^^  ^^^^^^^^
+
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+error[E0277]: the trait bound `&Icon: ComponentConstructor<_>` is not satisfied
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ the trait `ComponentConstructor<_>` is not implemented for `&Icon`
+    |
+note: required by a bound in `component_view`
+   --> /Users/tmacy/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f/leptos-0.6.15/src/lib.rs:348:34
+    |
+348 | pub fn component_view<P>(f: impl ComponentConstructor<P>, props: P) -> View {
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `component_view`
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `Icon: leptos::Component<_>` is not satisfied
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ unsatisfied trait bound
+    |
+help: the trait `leptos::Component<_>` is not implemented for `Icon`
+   --> crates/ui/src/components/layout.rs:16:1
+    |
+ 16 | enum Icon {
+    | ^^^^^^^^^
+note: required by a bound in `component_props_builder`
+   --> /Users/tmacy/.cargo/registry/src/mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f/leptos-0.6.15/src/lib.rs:342:15
+    |
+341 | pub fn component_props_builder<P: PropsOrNoPropsBuilder>(
+    |        ----------------------- required by a bound in this function
+342 |     _f: &impl Component<P>,
+    |               ^^^^^^^^^^^^ required by this bound in `component_props_builder`
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+   --> crates/ui/src/components/layout.rs:114:5
+    |
+114 | /     view! {
+115 | |         <div class="min-h-screen bg-gray-900 text-gray-100 flex">
+116 | |             <!-- 侧边栏 -->
+117 | |             <div class="w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+...   |
+233 | |         </div>
+234 | |     }
+    | |_____^ cannot infer type
+    |
+    = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0689]: can't call method `then` on ambiguous numeric type `{integer}`
+   --> crates/ui/src/components/layout.rs:282:32
+    |
+282 |                         {i > 0.then(|| view! {
+    |                                ^^^^
+    |
+help: you must specify a concrete type for this numeric value, like `i32`
+    |
+282 |                         {i > 0_i32.then(|| view! {
+    |                               ++++
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0277, E0282, E0425, E0689.
+For more information about an error, try `rustc --explain E0277`.
+Some errors have detailed explanations: E0277, E0282, E0425, E0432, E0689.
+warning: `palpo-ui` (bin "palpo-ui") generated 9 warnings
+error: could not compile `palpo-ui` (bin "palpo-ui") due to 23 previous errors; 9 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+warning: `palpo-ui` (lib) generated 9 warnings (9 duplicates)
+error: could not compile `palpo-ui` (lib) due to 25 previous errors; 9 warnings emitted
+2026-02-02T13:24:21.416791Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101
+2026-02-02T13:26:27.219639Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on artifact directory
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+error: wrong close tag found
+   --> crates/ui/src/pages/dashboard.rs:221:9
+    |
+221 |         </MainLayout>
+    |         ^
+
+error: ␛[1;34m[␛[0m␛[1;36mhelp␛[0m␛[1;34m] ␛[0m␛[1;39mopen tag that should be closed; it's started here␛[0m
+  --> crates/ui/src/pages/dashboard.rs:16:13
+   |
+16 |             <div class="p-6 space-y-6">
+   |             ^
+
+error: open tag has no corresponding close tag
+  --> crates/ui/src/pages/dashboard.rs:15:9
+   |
+15 |         <MainLayout>
+   |         ^
+
+error: ␛[1;34m[␛[0m␛[1;32mnote␛[0m␛[1;34m] ␛[0m␛[1;39mtreating all inputs after open tag as it content␛[0m
+  --> crates/ui/src/pages/dashboard.rs:16:13
+   |
+16 |             <div class="p-6 space-y-6">
+   |             ^
+
+error[E0432]: unresolved import `app::ProvideAuthContext`
+  --> crates/ui/src/lib.rs:11:20
+   |
+11 | pub use app::{App, ProvideAuthContext};
+   |                    ^^^^^^^^^^^^^^^^^^
+   |                    |
+   |                    no `ProvideAuthContext` in `app`
+   |                    help: a similar name exists in the module: `provide_context`
+
+error: cannot find macro `view` in this scope
+  --> crates/ui/src/lib.rs:37:38
+   |
+37 |     leptos::mount_to(app_element, || view! {
+   |                                      ^^^^
+   |
+help: consider importing this macro
+   |
+11 + use leptos::view;
+   |
+
+error[E0425]: cannot find value `MainLayout` in module `leptos::leptos_dom::html`
+   --> crates/ui/src/pages/dashboard.rs:221:11
+    |
+221 |         </MainLayout>
+    |           ^^^^^^^^^^ not found in `leptos::leptos_dom::html`
+    |
+help: consider importing this function through its public re-export
+    |
+  3 + use crate::pages::dashboard::MainLayout;
+    |
+
+warning: unused import: `crate::components::MainLayout`
+ --> crates/ui/src/app.rs:8:5
+  |
+8 | use crate::components::MainLayout;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Breadcrumb` and `PageCard`
+ --> crates/ui/src/components/mod.rs:5:30
+  |
+5 | pub use layout::{MainLayout, Breadcrumb, PageCard};
+  |                              ^^^^^^^^^^  ^^^^^^^^
+
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+error[E0382]: use of moved value: `navigate`
+   --> crates/ui/src/components/layout.rs:109:21
+    |
+ 66 |     let navigate = use_navigate();
+    |         -------- move occurs because `navigate` has type `impl (for<'a> Fn(&'a str, NavigateOptions)) + Clone`, which does not implement the `Copy` trait
+...
+ 69 |     create_effect(move |_| {
+    |                   -------- value moved into closure here
+ 70 |         if !auth.state.get().is_authenticated() {
+ 71 |             navigate("/", Default::default());
+    |             -------- variable moved due to use in closure
+...
+109 |     let on_logout = move |_| {
+    |                     ^^^^^^^^ value used here after move
+110 |         auth.logout();
+111 |         navigate("/", Default::default());
+    |         -------- use occurs due to use in closure
+    |
+help: consider cloning the value before moving it into the closure
+    |
+ 69 ~     let value = navigate.clone();
+ 70 ~     create_effect(move |_| {
+ 71 |         if !auth.state.get().is_authenticated() {
+ 72 ~             value("/", Default::default());
+    |
+
+error[E0689]: can't call method `then` on ambiguous numeric type `{integer}`
+   --> crates/ui/src/components/layout.rs:282:32
+    |
+282 |                         {i > 0.then(|| view! {
+    |                                ^^^^
+    |
+help: you must specify a concrete type for this numeric value, like `i32`
+    |
+282 |                         {i > 0_i32.then(|| view! {
+    |                               ++++
+
+warning: unused variable: `navigate`
+  --> crates/ui/src/pages/login.rs:24:9
+   |
+24 |     let navigate = use_navigate();
+   |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_navigate`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0382, E0425, E0689.
+For more information about an error, try `rustc --explain E0382`.
+Some errors have detailed explanations: E0382, E0425, E0432, E0689.
+warning: `palpo-ui` (bin "palpo-ui") generated 9 warnings
+error: could not compile `palpo-ui` (bin "palpo-ui") due to 7 previous errors; 9 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+warning: `palpo-ui` (lib) generated 9 warnings (9 duplicates)
+error: could not compile `palpo-ui` (lib) due to 9 previous errors; 9 warnings emitted
+2026-02-02T13:26:31.556448Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101
+2026-02-02T13:26:45.840993Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on artifact directory
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+error: mismatched closing delimiter: `}`
+   --> crates/ui/src/components/layout.rs:279:60
+    |
+279 |             {move || segments().into_iter().enumerate().map(|(i, (path, name))| {
+    |             - closing delimiter possibly meant for this    ^ unclosed delimiter
+...
+302 |             }).collect::<Vec<_>>()}
+    |             ^ mismatched closing delimiter
+
+error: unexpected closing delimiter: `}`
+   --> crates/ui/src/components/layout.rs:304:5
+    |
+277 |     view! {
+    |           - the nearest open delimiter
+...
+302 |             }).collect::<Vec<_>>()}
+    |              - missing open `(` for this delimiter
+303 |         </ol>
+304 |     }
+    |     ^ unexpected closing delimiter
+
+error: could not compile `palpo-ui` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `palpo-ui` (bin "palpo-ui") due to 2 previous errors
+2026-02-02T13:26:47.768520Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101
+2026-02-02T13:26:59.476716Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+error: mismatched closing delimiter: `}`
+   --> crates/ui/src/components/layout.rs:279:60
+    |
+279 |             {move || segments().into_iter().enumerate().map(|(i, (path, name))| {
+    |             - closing delimiter possibly meant for this    ^ unclosed delimiter
+...
+302 |             }).collect::<Vec<_>>()}
+    |             ^ mismatched closing delimiter
+
+error: unexpected closing delimiter: `}`
+   --> crates/ui/src/components/layout.rs:304:5
+    |
+277 |     view! {
+    |           - the nearest open delimiter
+...
+302 |             }).collect::<Vec<_>>()}
+    |              - missing open `(` for this delimiter
+303 |         </ol>
+304 |     }
+    |     ^ unexpected closing delimiter
+
+error: could not compile `palpo-ui` (bin "palpo-ui") due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `palpo-ui` (lib) due to 2 previous errors
+2026-02-02T13:27:00.519467Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101
+2026-02-02T13:28:44.121784Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+error: wrong close tag found
+   --> crates/ui/src/pages/dashboard.rs:221:9
+    |
+221 |         </MainLayout>
+    |         ^
+
+error: ␛[1;34m[␛[0m␛[1;36mhelp␛[0m␛[1;34m] ␛[0m␛[1;39mopen tag that should be closed; it's started here␛[0m
+  --> crates/ui/src/pages/dashboard.rs:16:13
+   |
+16 |             <div class="p-6 space-y-6">
+   |             ^
+
+error: open tag has no corresponding close tag
+  --> crates/ui/src/pages/dashboard.rs:15:9
+   |
+15 |         <MainLayout>
+   |         ^
+
+error: ␛[1;34m[␛[0m␛[1;32mnote␛[0m␛[1;34m] ␛[0m␛[1;39mtreating all inputs after open tag as it content␛[0m
+  --> crates/ui/src/pages/dashboard.rs:16:13
+   |
+16 |             <div class="p-6 space-y-6">
+   |             ^
+
+error[E0432]: unresolved import `app::ProvideAuthContext`
+  --> crates/ui/src/lib.rs:11:20
+   |
+11 | pub use app::{App, ProvideAuthContext};
+   |                    ^^^^^^^^^^^^^^^^^^
+   |                    |
+   |                    no `ProvideAuthContext` in `app`
+   |                    help: a similar name exists in the module: `provide_context`
+
+error: cannot find macro `view` in this scope
+  --> crates/ui/src/lib.rs:37:38
+   |
+37 |     leptos::mount_to(app_element, || view! {
+   |                                      ^^^^
+   |
+help: consider importing this macro
+   |
+11 + use leptos::view;
+   |
+
+error[E0425]: cannot find value `MainLayout` in module `leptos::leptos_dom::html`
+   --> crates/ui/src/pages/dashboard.rs:221:11
+    |
+221 |         </MainLayout>
+    |           ^^^^^^^^^^ not found in `leptos::leptos_dom::html`
+    |
+help: consider importing this function through its public re-export
+    |
+  3 + use crate::pages::dashboard::MainLayout;
+    |
+
+warning: unused import: `crate::components::MainLayout`
+ --> crates/ui/src/app.rs:8:5
+  |
+8 | use crate::components::MainLayout;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Breadcrumb` and `PageCard`
+ --> crates/ui/src/components/mod.rs:5:30
+  |
+5 | pub use layout::{MainLayout, Breadcrumb, PageCard};
+  |                              ^^^^^^^^^^  ^^^^^^^^
+
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+error[E0382]: use of moved value: `navigate`
+   --> crates/ui/src/components/layout.rs:109:21
+    |
+ 66 |     let navigate = use_navigate();
+    |         -------- move occurs because `navigate` has type `impl (for<'a> Fn(&'a str, NavigateOptions)) + Clone`, which does not implement the `Copy` trait
+...
+ 69 |     create_effect(move |_| {
+    |                   -------- value moved into closure here
+ 70 |         if !auth.state.get().is_authenticated() {
+ 71 |             navigate("/", Default::default());
+    |             -------- variable moved due to use in closure
+...
+109 |     let on_logout = move |_| {
+    |                     ^^^^^^^^ value used here after move
+110 |         auth.logout();
+111 |         navigate("/", Default::default());
+    |         -------- use occurs due to use in closure
+    |
+help: consider cloning the value before moving it into the closure
+    |
+ 69 ~     let value = navigate.clone();
+ 70 ~     create_effect(move |_| {
+ 71 |         if !auth.state.get().is_authenticated() {
+ 72 ~             value("/", Default::default());
+    |
+
+error[E0599]: no method named `then` found for closure `{closure@crates/ui/src/components/layout.rs:282:27: 282:34}` in the current scope
+   --> crates/ui/src/components/layout.rs:282:42
+    |
+282 |                         {(move || i > 0).then(|| view! {
+    |                          ----------------^^^^ method not found in `{closure@crates/ui/src/components/layout.rs:282:27: 282:34}`
+    |
+help: use parentheses to call this closure
+    |
+282 |                         {((move || i > 0))().then(|| view! {
+    |                          +               +++
+
+Some errors have detailed explanations: E0382, E0425, E0599.
+For more information about an error, try `rustc --explain E0382`.
+warning: `palpo-ui` (bin "palpo-ui") generated 8 warnings
+error: could not compile `palpo-ui` (bin "palpo-ui") due to 7 previous errors; 8 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+Some errors have detailed explanations: E0382, E0425, E0432, E0599.
+warning: `palpo-ui` (lib) generated 8 warnings (8 duplicates)
+error: could not compile `palpo-ui` (lib) due to 9 previous errors; 8 warnings emitted
+2026-02-02T13:28:46.342900Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101
+2026-02-02T13:29:14.857952Z  INFO 📦 starting build
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /Users/tmacy/palpo/crates/ui/Cargo.toml
+workspace: /Users/tmacy/palpo/Cargo.toml
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling palpo-ui v0.1.0 (/Users/tmacy/palpo/crates/ui)
+error: wrong close tag found
+   --> crates/ui/src/pages/dashboard.rs:221:9
+    |
+221 |         </MainLayout>
+    |         ^
+
+error: ␛[1;34m[␛[0m␛[1;36mhelp␛[0m␛[1;34m] ␛[0m␛[1;39mopen tag that should be closed; it's started here␛[0m
+  --> crates/ui/src/pages/dashboard.rs:16:13
+   |
+16 |             <div class="p-6 space-y-6">
+   |             ^
+
+error: open tag has no corresponding close tag
+  --> crates/ui/src/pages/dashboard.rs:15:9
+   |
+15 |         <MainLayout>
+   |         ^
+
+error: ␛[1;34m[␛[0m␛[1;32mnote␛[0m␛[1;34m] ␛[0m␛[1;39mtreating all inputs after open tag as it content␛[0m
+  --> crates/ui/src/pages/dashboard.rs:16:13
+   |
+16 |             <div class="p-6 space-y-6">
+   |             ^
+
+error[E0432]: unresolved import `app::ProvideAuthContext`
+  --> crates/ui/src/lib.rs:11:20
+   |
+11 | pub use app::{App, ProvideAuthContext};
+   |                    ^^^^^^^^^^^^^^^^^^
+   |                    |
+   |                    no `ProvideAuthContext` in `app`
+   |                    help: a similar name exists in the module: `provide_context`
+
+error[E0425]: cannot find value `MainLayout` in module `leptos::leptos_dom::html`
+   --> crates/ui/src/pages/dashboard.rs:221:11
+    |
+221 |         </MainLayout>
+    |           ^^^^^^^^^^ not found in `leptos::leptos_dom::html`
+    |
+help: consider importing this function through its public re-export
+    |
+  3 + use crate::pages::dashboard::MainLayout;
+    |
+
+warning: unused import: `crate::components::MainLayout`
+ --> crates/ui/src/app.rs:8:5
+  |
+8 | use crate::components::MainLayout;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Breadcrumb` and `PageCard`
+ --> crates/ui/src/components/mod.rs:5:30
+  |
+5 | pub use layout::{MainLayout, Breadcrumb, PageCard};
+  |                              ^^^^^^^^^^  ^^^^^^^^
+
+warning: unused import: `super::auth::AuthApi`
+ --> crates/ui/src/services/users.rs:5:5
+  |
+5 | use super::auth::AuthApi;
+  |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `ApiClient` and `ApiError`
+ --> crates/ui/src/services/mod.rs:7:15
+  |
+7 | pub use api::{ApiClient, ApiError};
+  |               ^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `AuthApi`, `LoginRequest`, and `LoginResponse`
+ --> crates/ui/src/services/mod.rs:8:16
+  |
+8 | pub use auth::{AuthApi, LoginRequest, LoginResponse};
+  |                ^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `users::*`
+ --> crates/ui/src/services/mod.rs:9:9
+  |
+9 | pub use users::*;
+  |         ^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> crates/ui/src/state/auth.rs:4:13
+  |
+4 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `LoginResponse`
+ --> crates/ui/src/state/auth.rs:5:29
+  |
+5 | use crate::services::auth::{LoginResponse, AuthApi, LoginRequest};
+  |                             ^^^^^^^^^^^^^
+
+error[E0382]: use of moved value: `navigate`
+   --> crates/ui/src/components/layout.rs:109:21
+    |
+ 66 |     let navigate = use_navigate();
+    |         -------- move occurs because `navigate` has type `impl (for<'a> Fn(&'a str, NavigateOptions)) + Clone`, which does not implement the `Copy` trait
+...
+ 69 |     create_effect(move |_| {
+    |                   -------- value moved into closure here
+ 70 |         if !auth.state.get().is_authenticated() {
+ 71 |             navigate("/", Default::default());
+    |             -------- variable moved due to use in closure
+...
+109 |     let on_logout = move |_| {
+    |                     ^^^^^^^^ value used here after move
+110 |         auth.logout();
+111 |         navigate("/", Default::default());
+    |         -------- use occurs due to use in closure
+    |
+help: consider cloning the value before moving it into the closure
+    |
+ 69 ~     let value = navigate.clone();
+ 70 ~     create_effect(move |_| {
+ 71 |         if !auth.state.get().is_authenticated() {
+ 72 ~             value("/", Default::default());
+    |
+
+error[E0599]: no method named `then` found for closure `{closure@crates/ui/src/components/layout.rs:282:27: 282:34}` in the current scope
+   --> crates/ui/src/components/layout.rs:282:42
+    |
+282 |                         {(move || i > 0).then(|| view! {
+    |                          ----------------^^^^ method not found in `{closure@crates/ui/src/components/layout.rs:282:27: 282:34}`
+    |
+help: use parentheses to call this closure
+    |
+282 |                         {((move || i > 0))().then(|| view! {
+    |                          +               +++
+
+error[E0282]: type annotations needed
+  --> crates/ui/src/lib.rs:40:38
+   |
+40 |       leptos::mount_to(app_element, || view! {
+   |  ______________________________________^
+41 | |         <ProvideAuthContext>
+42 | |             <App/>
+43 | |         </ProvideAuthContext>
+44 | |     });
+   | |_____^ cannot infer type
+   |
+   = note: this error originates in the macro `view` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+Some errors have detailed explanations: E0382, E0425, E0599.
+For more information about an error, try `rustc --explain E0382`.
+warning: `palpo-ui` (bin "palpo-ui") generated 8 warnings
+error: could not compile `palpo-ui` (bin "palpo-ui") due to 7 previous errors; 8 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+Some errors have detailed explanations: E0282, E0382, E0425, E0432, E0599.
+For more information about an error, try `rustc --explain E0282`.
+warning: `palpo-ui` (lib) generated 8 warnings (8 duplicates)
+error: could not compile `palpo-ui` (lib) due to 9 previous errors; 8 warnings emitted
+2026-02-02T13:29:16.295933Z ERROR ❌ error
+error from build pipeline
+
+Caused by:
+    0: HTML build pipeline failed (1 errors), showing first
+    1: error from asset pipeline
+    2: running cargo build
+    3: error during cargo build execution
+    4: cargo call to executable 'cargo' with args: '["build", "--target=wasm32-unknown-unknown", "--manifest-path", "/Users/tmacy/palpo/crates/ui/Cargo.toml"]' returned a bad status: exit status: 101

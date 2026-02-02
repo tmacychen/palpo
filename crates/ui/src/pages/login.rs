@@ -4,10 +4,24 @@ use leptos::*;
 use leptos_router::*;
 use crate::state::{use_auth, AuthState};
 
+// 辅助函数：从 localStorage 获取值
+fn get_local_storage(key: &str) -> Option<String> {
+    let window = web_sys::window()?;
+    let storage = window.local_storage().ok()??;
+    storage.get_item(key).ok()?
+}
+
+// 辅助函数：设置 localStorage 值
+fn set_local_storage(key: &str, value: &str) {
+    if let Some(storage) = web_sys::window().and_then(|w| w.local_storage().ok()?) {
+        let _ = storage.set_item(key, value);
+    }
+}
+
 #[component]
 pub fn LoginPage() -> impl IntoView {
     let auth = use_auth();
-    let navigate = use_navigate();
+    let _navigate = use_navigate();
     
     let (username, set_username) = create_signal(String::new());
     let (password, set_password) = create_signal(String::new());
@@ -20,7 +34,7 @@ pub fn LoginPage() -> impl IntoView {
     create_effect(move |_| {
         if server_url.get().is_empty() {
             // 尝试从 localStorage 加载
-            if let Ok(saved_url) = gloo_storage::LocalStorage::get("palpo_admin_server_url") {
+            if let Some(saved_url) = get_local_storage("palpo_admin_server_url") {
                 set_server_url.set(saved_url);
             } else {
                 // 使用当前域名
@@ -31,6 +45,8 @@ pub fn LoginPage() -> impl IntoView {
             }
         }
     });
+    
+    let navigate = use_navigate();
     
     // 监听认证状态变化
     create_effect(move |_| {
@@ -43,6 +59,15 @@ pub fn LoginPage() -> impl IntoView {
                 set_error.set(Some(msg));
             }
             _ => {}
+        }
+    });
+    
+    // 如果已认证，显示加载状态
+    let auth_clone_for_effect = auth.clone();
+    let navigate2 = use_navigate();
+    create_effect(move |_| {
+        if auth_clone_for_effect.state.get().is_authenticated() {
+            navigate2("/dashboard", Default::default());
         }
     });
     
@@ -64,18 +89,19 @@ pub fn LoginPage() -> impl IntoView {
         }
         
         // 保存服务器地址
-        let _ = gloo_storage::LocalStorage::set("palpo_admin_server_url", &url);
+        set_local_storage("palpo_admin_server_url", &url);
         auth.server_url.set(url);
-        
+
         set_loading.set(true);
         set_error.set(None);
-        
+
         // 执行登录
         let auth_clone = auth.clone();
-        spawn(async move {
+        leptos::spawn_local(async move {
             match auth_clone.login(user, pass).await {
                 Ok(()) => {
                     // 登录成功，导航到 dashboard
+                    let navigate = use_navigate();
                     navigate("/dashboard", Default::default());
                 }
                 Err(e) => {
@@ -86,17 +112,9 @@ pub fn LoginPage() -> impl IntoView {
         });
     };
     
-    // 如果已认证，显示加载状态
-    create_effect(move |_| {
-        if auth.state.get().is_authenticated() {
-            navigate("/dashboard", Default::default());
-        }
-    });
-    
     view! {
         <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
             <div class="glass-dark rounded-2xl shadow-2xl w-full max-w-md p-8 animate-fade-in">
-                <!-- Logo 和标题 -->
                 <div class="text-center mb-8">
                     <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl mx-auto mb-4 flex items-center justify-center">
                         <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -107,7 +125,6 @@ pub fn LoginPage() -> impl IntoView {
                     <p class="text-gray-400 text-sm">"Matrix Homeserver 管理系统"</p>
                 </div>
                 
-                <!-- 服务器地址设置 -->
                 <div class="mb-6">
                     <label for="server_url" class="block text-sm font-medium text-gray-300 mb-2">
                         "服务器地址"
@@ -126,17 +143,14 @@ pub fn LoginPage() -> impl IntoView {
                     />
                 </div>
                 
-                <!-- 错误提示 -->
                 {move || error.get().map(|msg| view! {
                     <div class="mb-4">
                         <crate::app::ErrorAlert message=msg/>
                     </div>
                 })}
                 
-                <!-- 登录表单 -->
                 <form on:submit=on_submit>
                     <div class="space-y-5">
-                        <!-- 用户名 -->
                         <div>
                             <label for="username" class="block text-sm font-medium text-gray-300 mb-2">
                                 "用户名"
@@ -156,7 +170,6 @@ pub fn LoginPage() -> impl IntoView {
                             />
                         </div>
                         
-                        <!-- 密码 -->
                         <div>
                             <label for="password" class="block text-sm font-medium text-gray-300 mb-2">
                                 "密码"
@@ -175,7 +188,6 @@ pub fn LoginPage() -> impl IntoView {
                             />
                         </div>
                         
-                        <!-- 记住我 -->
                         <div class="flex items-center">
                             <input 
                                 id="remember" 
@@ -190,7 +202,6 @@ pub fn LoginPage() -> impl IntoView {
                             </label>
                         </div>
                         
-                        <!-- 登录按钮 -->
                         <button
                             type="submit"
                             class="w-full py-3 px-4 bg-gradient-to-r from-primary-500 to-primary-700
@@ -218,7 +229,6 @@ pub fn LoginPage() -> impl IntoView {
                     </div>
                 </form>
                 
-                <!-- 底部信息 -->
                 <div class="mt-6 text-center">
                     <p class="text-xs text-gray-500">
                         "© 2024 Palpo Matrix Homeserver"

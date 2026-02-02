@@ -1,8 +1,7 @@
 // HTTP API 客户端封装
 
-use gloo_net::http::{Request, Response};
+use gloo_net::http::{Request, RequestBuilder, Response};
 use serde::{de::DeserializeOwned, Serialize};
-use wasm_bindgen::JsValue;
 
 /// API 错误类型
 #[derive(Debug, Clone)]
@@ -76,8 +75,11 @@ impl ApiClient {
     
     /// 发送 GET 请求
     pub async fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T, ApiError> {
-        let mut request = Request::get(&self.build_url(path));
-        request = self.add_auth_header(request);
+        let request_builder = Request::get(&self.build_url(path));
+        let builder = self.add_auth_header(request_builder);
+        
+        let request = builder.build()
+            .map_err(|e| ApiError::Network(format!("Failed to build request: {}", e)))?;
         
         let response = request.send().await.map_err(|e| {
             ApiError::Network(e.to_string())
@@ -96,10 +98,12 @@ impl ApiClient {
             ApiError::Json(e.to_string())
         })?;
         
-        let mut request = Request::post(&self.build_url(path))
-            .header("Content-Type", "application/json")
-            .body(json);
-        request = self.add_auth_header(request);
+        let mut builder = Request::post(&self.build_url(path))
+            .header("Content-Type", "application/json");
+        builder = self.add_auth_header(builder);
+        
+        let request = builder.body(json)
+            .map_err(|e| ApiError::Network(format!("Failed to set request body: {}", e)))?;
         
         let response = request.send().await.map_err(|e| {
             ApiError::Network(e.to_string())
@@ -118,10 +122,12 @@ impl ApiClient {
             ApiError::Json(e.to_string())
         })?;
         
-        let mut request = Request::put(&self.build_url(path))
-            .header("Content-Type", "application/json")
-            .body(json);
-        request = self.add_auth_header(request);
+        let mut builder = Request::put(&self.build_url(path))
+            .header("Content-Type", "application/json");
+        builder = self.add_auth_header(builder);
+        
+        let request = builder.body(json)
+            .map_err(|e| ApiError::Network(format!("Failed to set request body: {}", e)))?;
         
         let response = request.send().await.map_err(|e| {
             ApiError::Network(e.to_string())
@@ -132,8 +138,11 @@ impl ApiClient {
     
     /// 发送 DELETE 请求
     pub async fn delete<T: DeserializeOwned>(&self, path: &str) -> Result<T, ApiError> {
-        let mut request = Request::delete(&self.build_url(path));
-        request = self.add_auth_header(request);
+        let request_builder = Request::delete(&self.build_url(path));
+        let builder = self.add_auth_header(request_builder);
+        
+        let request = builder.build()
+            .map_err(|e| ApiError::Network(format!("Failed to build request: {}", e)))?;
         
         let response = request.send().await.map_err(|e| {
             ApiError::Network(e.to_string())
@@ -143,11 +152,11 @@ impl ApiClient {
     }
     
     /// 添加认证头
-    fn add_auth_header(&self, request: Request) -> Request {
+    fn add_auth_header(&self, builder: RequestBuilder) -> RequestBuilder {
         if let Some(token) = &self.token {
-            request.header("Authorization", &format!("Bearer {}", token))
+            builder.header("Authorization", &format!("Bearer {}", token))
         } else {
-            request
+            builder
         }
     }
     
@@ -213,5 +222,159 @@ impl<T> ApiResponse<T> {
             data: None,
             error: Some(msg),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wasm_bindgen_test::*;
+    use serde_json::json;
+
+    wasm_bindgen_test_configure!(run_in_browser);
+
+    #[test]
+    fn test_api_client_creation() {
+        let client = ApiClient::new("https://example.com".to_string());
+        assert_eq!(client.base_url, "https://example.com");
+        assert!(client.token.is_none());
+    }
+
+    #[test]
+    fn test_api_client_with_token() {
+        let client = ApiClient::new("https://example.com".to_string())
+            .with_token("test_token".to_string());
+        assert_eq!(client.token(), Some("test_token"));
+    }
+
+    #[test]
+    fn test_api_client_set_token() {
+        let mut client = ApiClient::new("https://example.com".to_string());
+        assert!(client.token.is_none());
+        
+        client.set_token(Some("new_token".to_string()));
+        assert_eq!(client.token(), Some("new_token"));
+        
+        client.set_token(None);
+        assert!(client.token.is_none());
+    }
+
+    #[test]
+    fn test_build_url() {
+        let client = ApiClient::new("https://example.com".to_string());
+        
+        // 测试相对路径
+        assert_eq!(
+            client.build_url("/api/test"),
+            "https://example.com/api/test"
+        );
+        
+        // 测试不带斜杠的路径
+        assert_eq!(
+            client.build_url("api/test"),
+            "https://example.com/api/test"
+        );
+        
+        // 测试绝对 URL
+        assert_eq!(
+            client.build_url("https://other.com/api"),
+            "https://other.com/api"
+        );
+    }
+
+    #[test]
+    fn test_build_url_with_trailing_slash() {
+        let client = ApiClient::new("https://example.com/".to_string());
+        assert_eq!(
+            client.build_url("api/test"),
+            "https://example.com/api/test"
+        );
+    }
+
+    #[test]
+    fn test_api_error_display() {
+        let error = ApiError::Status(404, "Not Found".to_string());
+        assert_eq!(error.to_string(), "HTTP 404: Not Found");
+        
+        let error = ApiError::Network("Connection failed".to_string());
+        assert_eq!(error.to_string(), "Network error: Connection failed");
+        
+        let error = ApiError::Json("Invalid JSON".to_string());
+        assert_eq!(error.to_string(), "JSON error: Invalid JSON");
+        
+        let error = ApiError::Other("Unknown error".to_string());
+        assert_eq!(error.to_string(), "Error: Unknown error");
+    }
+
+    #[test]
+    fn test_api_response_success() {
+        let data = json!({ "key": "value" });
+        let response: ApiResponse<serde_json::Value> = ApiResponse::success(data.clone());
+        
+        assert!(response.success);
+        assert_eq!(response.data, Some(data));
+        assert!(response.error.is_none());
+    }
+
+    #[test]
+    fn test_api_response_error() {
+        let response: ApiResponse<String> = ApiResponse::error("Test error".to_string());
+        
+        assert!(!response.success);
+        assert!(response.data.is_none());
+        assert_eq!(response.error, Some("Test error".to_string()));
+    }
+
+    #[wasm_bindgen_test]
+    async fn test_handle_empty_response() {
+        let _client = ApiClient::new("https://example.com".to_string());
+        
+        // 模拟空响应应该能解析为 {}
+        let empty_json: serde_json::Value = serde_json::from_str("{}").unwrap();
+        assert_eq!(empty_json, json!({}));
+    }
+
+    #[wasm_bindgen_test]
+    async fn test_handle_error_response_parsing() {
+        // 测试错误响应解析
+        let error_json = r#"{"error": "Invalid token"}"#;
+        let parsed: serde_json::Value = serde_json::from_str(error_json).unwrap();
+        
+        let error_msg = parsed.get("error")
+            .and_then(|v| v.as_str())
+            .unwrap_or(error_json)
+            .to_string();
+        
+        assert_eq!(error_msg, "Invalid token");
+    }
+
+    #[test]
+    fn test_complex_url_building() {
+        let client = ApiClient::new("http://localhost:8008".to_string());
+        
+        // 测试带端口和路径的 URL
+        assert_eq!(
+            client.build_url("/_matrix/client/v3/login"),
+            "http://localhost:8008/_matrix/client/v3/login"
+        );
+        
+        // 测试带查询参数的 URL
+        assert_eq!(
+            client.build_url("/api/users?from=10&limit=20"),
+            "http://localhost:8008/api/users?from=10&limit=20"
+        );
+    }
+
+    #[test]
+    fn test_api_client_clone() {
+        let client1 = ApiClient::new("https://example.com".to_string())
+            .with_token("token1".to_string());
+        
+        let mut client2 = client1.clone();
+        client2.set_token(Some("token2".to_string()));
+        
+        // 验证克隆后修改不会影响原对象
+        assert_eq!(client1.token(), Some("token1"));
+        assert_eq!(client2.token(), Some("token2"));
     }
 }

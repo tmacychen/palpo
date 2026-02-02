@@ -329,7 +329,7 @@ impl UsersApi {
 }
 
 /// 用户列表查询参数
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct UserListParams {
     pub from: Option<i64>,
     pub limit: i64,

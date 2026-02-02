@@ -1,2 +1,9 @@
 // API 服务模块
-// 将在后续任务中实现 API 客户端
+
+pub mod api;
+pub mod auth;
+pub mod users;
+
+pub use api::{ApiClient, ApiError};
+pub use auth::{AuthApi, LoginRequest, LoginResponse};
+pub use users::*;
