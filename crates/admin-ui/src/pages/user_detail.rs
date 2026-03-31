@@ -37,6 +37,8 @@ enum UserDetailTab {
     Connections,
     Pushers,
     Media,
+    Rooms,
+    RateLimit,
 }
 
 /// User detail page component with tabbed interface
@@ -134,6 +136,8 @@ pub fn UserDetail(user_id: String) -> Element {
                             TabButton { label: "连接", icon: "🔌", active: active_tab() == UserDetailTab::Connections, onclick: move |_| active_tab.set(UserDetailTab::Connections) },
                             TabButton { label: "推送器", icon: "🔔", active: active_tab() == UserDetailTab::Pushers, onclick: move |_| active_tab.set(UserDetailTab::Pushers) },
                             TabButton { label: "媒体", icon: "🖼️", active: active_tab() == UserDetailTab::Media, onclick: move |_| active_tab.set(UserDetailTab::Media) },
+                            TabButton { label: "房间", icon: "🏠", active: active_tab() == UserDetailTab::Rooms, onclick: move |_| active_tab.set(UserDetailTab::Rooms) },
+                            TabButton { label: "速率限制", icon: "⚡", active: active_tab() == UserDetailTab::RateLimit, onclick: move |_| active_tab.set(UserDetailTab::RateLimit) },
                         }
                     }
                     div { class: "p-6",
@@ -167,6 +171,8 @@ pub fn UserDetail(user_id: String) -> Element {
                             UserDetailTab::Connections => rsx! { ConnectionsTab { user_id: u.user_id.clone() } },
                             UserDetailTab::Pushers => rsx! { PushersTab { user_id: u.user_id.clone() } },
                             UserDetailTab::Media => rsx! { MediaTab { user_id: u.user_id.clone() } },
+                            UserDetailTab::Rooms => rsx! { RoomsTab { user_id: u.user_id.clone() } },
+                            UserDetailTab::RateLimit => rsx! { RateLimitTab { user_id: u.user_id.clone() } },
                         }
                     }
                 }
@@ -890,6 +896,300 @@ fn format_size(bytes: u64) -> String {
     else if bytes < 1024 * 1024 { format!("{:.1} KB", bytes as f64 / 1024.0) }
     else if bytes < 1024 * 1024 * 1024 { format!("{:.1} MB", bytes as f64 / (1024.0 * 1024.0)) }
     else { format!("{:.1} GB", bytes as f64 / (1024.0 * 1024.0 * 1024.0)) }
+}
+
+/// Rooms tab - shows rooms the user has joined
+#[component]
+fn RoomsTab(user_id: String) -> Element {
+    let rooms = use_signal(|| Vec::<serde_json::Value>::new());
+    let loading = use_signal(|| true);
+    let error = use_signal(|| None::<String>);
+
+    use_effect(move || {
+        let user_id = user_id.clone();
+        let mut loading = loading;
+        let mut error = error;
+        let mut rooms = rooms;
+
+        let api_client = ApiClient::new("http://localhost:8081");
+
+        spawn_local(async move {
+            loading.set(true);
+            error.set(None);
+
+            let path = format!("/api/v1/users/{}/joined_rooms", user_id);
+            match api_client.get_json::<serde_json::Value>(&path).await {
+                Ok(resp) => {
+                    if let Some(arr) = resp.get("joined_rooms").and_then(|v| v.as_array()) {
+                        rooms.set(arr.clone());
+                    }
+                }
+                Err(e) => {
+                    error.set(Some(format!("获取房间列表失败: {}", e)));
+                }
+            }
+            loading.set(false);
+        });
+    });
+
+    rsx! {
+        div { class: "p-4 sm:p-6 space-y-6",
+            div { class: "flex items-center justify-between",
+                h3 { class: "text-lg font-medium text-gray-900", "已加入的房间" }
+                if !rooms().is_empty() {
+                    div { class: "text-sm text-gray-500", "共 {rooms().len()} 个房间" }
+                }
+            }
+
+            if let Some(err) = error() {
+                div { class: "p-4 bg-red-50 border border-red-200 rounded-md",
+                    p { class: "text-sm text-red-600", "{err}" }
+                }
+            }
+
+            if loading() {
+                div { class: "p-12 text-center",
+                    Spinner { size: "large".to_string(), message: Some("加载房间列表...".to_string()) }
+                }
+            } else if rooms().is_empty() {
+                div { class: "text-center py-12",
+                    div { class: "text-gray-400 text-5xl mb-4", "🏠" }
+                    p { class: "text-gray-500 text-lg", "未加入任何房间" }
+                }
+            } else {
+                div { class: "overflow-x-auto",
+                    table { class: "min-w-full divide-y divide-gray-200",
+                        thead { class: "bg-gray-50",
+                            tr {
+                                th { class: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider", "房间 ID" }
+                            }
+                        }
+                        tbody { class: "bg-white divide-y divide-gray-200",
+                            for room in rooms() {
+                                tr { class: "hover:bg-gray-50",
+                                    td { class: "px-6 py-4 whitespace-nowrap",
+                                        div { class: "flex items-center gap-2",
+                                            span { class: "text-xl", "🏠" }
+                                            span { class: "text-sm font-mono text-gray-900",
+                                                "{room.as_str().unwrap_or(\"未知\")}"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Rate limit tab - view and configure user rate limits
+#[component]
+fn RateLimitTab(user_id: String) -> Element {
+    let mut rate_limit = use_signal(|| None::<(i64, i64)>); // (messages_per_second, burst_count)
+    let loading = use_signal(|| true);
+    let mut error = use_signal(|| None::<String>);
+    let mut save_loading = use_signal(|| false);
+    let mut save_result = use_signal(|| None::<String>);
+    let mut edit_mps = use_signal(|| String::new());
+    let mut edit_burst = use_signal(|| String::new());
+    let mut is_editing = use_signal(|| false);
+    let user_id_for_save = user_id.clone();
+    let user_id_for_delete = user_id.clone();
+
+    use_effect(move || {
+        let user_id = user_id.clone();
+        let mut loading = loading;
+        let mut error = error;
+        let mut rate_limit = rate_limit;
+        let mut edit_mps = edit_mps;
+        let mut edit_burst = edit_burst;
+
+        let api_client = ApiClient::new("http://localhost:8081");
+
+        spawn_local(async move {
+            loading.set(true);
+            error.set(None);
+
+            let path = format!("/api/v1/users/{}/rate-limit", user_id);
+            match api_client.get_json::<serde_json::Value>(&path).await {
+                Ok(resp) => {
+                    let mps = resp.get("messages_per_second").and_then(|v| v.as_i64()).unwrap_or(0);
+                    let burst = resp.get("burst_count").and_then(|v| v.as_i64()).unwrap_or(0);
+                    rate_limit.set(Some((mps, burst)));
+                    edit_mps.set(mps.to_string());
+                    edit_burst.set(burst.to_string());
+                }
+                Err(_) => {
+                    // 404 means no custom rate limit
+                    rate_limit.set(None);
+                    edit_mps.set("0".to_string());
+                    edit_burst.set("0".to_string());
+                }
+            }
+            loading.set(false);
+        });
+    });
+
+    rsx! {
+        div { class: "p-4 sm:p-6 space-y-6",
+            div { class: "flex items-center justify-between",
+                h3 { class: "text-lg font-medium text-gray-900", "速率限制配置" }
+                if !is_editing() {
+                    button {
+                        class: "px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50",
+                        onclick: move |_| is_editing.set(true),
+                        "✏️ 编辑"
+                    }
+                }
+            }
+
+            if let Some(msg) = save_result() {
+                div { class: "p-3 bg-green-50 border border-green-200 rounded-md flex items-center justify-between",
+                    span { class: "text-sm text-green-800", "{msg}" }
+                    button { class: "text-green-600 text-sm", onclick: move |_| save_result.set(None), "✕" }
+                }
+            }
+
+            if let Some(err) = error() {
+                div { class: "p-4 bg-red-50 border border-red-200 rounded-md",
+                    p { class: "text-sm text-red-600", "{err}" }
+                }
+            }
+
+            if loading() {
+                div { class: "p-12 text-center",
+                    Spinner { size: "large".to_string(), message: Some("加载速率限制...".to_string()) }
+                }
+            } else {
+                div { class: "bg-white border border-gray-200 rounded-lg p-6 space-y-6",
+                    // Current status
+                    div { class: "flex items-center gap-3",
+                        if rate_limit().is_some() {
+                            span { class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800",
+                                "⚡ 自定义限制"
+                            }
+                        } else {
+                            span { class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800",
+                                "默认限制"
+                            }
+                        }
+                    }
+
+                    if is_editing() {
+                        div { class: "space-y-4",
+                            div { class: "grid grid-cols-2 gap-4",
+                                div {
+                                    label { class: "block text-sm font-medium text-gray-700 mb-1", "每秒消息数" }
+                                    input {
+                                        r#type: "number",
+                                        min: "0",
+                                        class: "w-full px-3 py-2 border border-gray-300 rounded-md text-sm",
+                                        value: "{edit_mps}",
+                                        oninput: move |evt| edit_mps.set(evt.value())
+                                    }
+                                }
+                                div {
+                                    label { class: "block text-sm font-medium text-gray-700 mb-1", "突发数量" }
+                                    input {
+                                        r#type: "number",
+                                        min: "0",
+                                        class: "w-full px-3 py-2 border border-gray-300 rounded-md text-sm",
+                                        value: "{edit_burst}",
+                                        oninput: move |evt| edit_burst.set(evt.value())
+                                    }
+                                }
+                            }
+                            div { class: "flex gap-2",
+                                button {
+                                    class: "px-4 py-2 bg-blue-600 text-white rounded-md text-sm disabled:opacity-50",
+                                    disabled: save_loading(),
+                                    onclick: {
+                                        let user_id_save = user_id_for_save.clone();
+                                        move |_| {
+                                            let mps: i32 = edit_mps().parse().unwrap_or(0);
+                                            let burst: i32 = edit_burst().parse().unwrap_or(0);
+                                            let user_id = user_id_save.clone();
+                                            let api_client = ApiClient::new("http://localhost:8081");
+                                            save_loading.set(true);
+                                            save_result.set(None);
+                                            spawn_local(async move {
+                                                let body = serde_json::json!({
+                                                    "messages_per_second": mps,
+                                                    "burst_count": burst
+                                                });
+                                                let path = format!("/api/v1/users/{}/rate-limit", user_id);
+                                                match api_client.post_json(&path, &body).await {
+                                                    Ok(_) => {
+                                                        rate_limit.set(Some((mps as i64, burst as i64)));
+                                                        save_result.set(Some("速率限制已更新".to_string()));
+                                                        is_editing.set(false);
+                                                    }
+                                                    Err(e) => {
+                                                        error.set(Some(format!("保存失败: {}", e)));
+                                                    }
+                                                }
+                                                save_loading.set(false);
+                                            });
+                                        }
+                                    },
+                                    if save_loading() { "保存中..." } else { "💾 保存" }
+                                }
+                                button {
+                                    class: "px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700",
+                                    onclick: move |_| is_editing.set(false),
+                                    "取消"
+                                }
+                                if rate_limit().is_some() {
+                                    button {
+                                        class: "px-4 py-2 border border-red-300 rounded-md text-sm text-red-700",
+                                        onclick: {
+                                            let user_id_del = user_id_for_delete.clone();
+                                            move |_| {
+                                                let user_id = user_id_del.clone();
+                                                let api_client = ApiClient::new("http://localhost:8081");
+                                                spawn_local(async move {
+                                                    let path = format!("/api/v1/users/{}/rate-limit", user_id);
+                                                    match api_client.delete(&path).await {
+                                                        Ok(_) => {
+                                                            rate_limit.set(None);
+                                                            save_result.set(Some("已恢复默认速率限制".to_string()));
+                                                            is_editing.set(false);
+                                                        }
+                                                        Err(e) => {
+                                                            error.set(Some(format!("删除失败: {}", e)));
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        },
+                                        "🗑️ 恢复默认"
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        div { class: "grid grid-cols-2 gap-6",
+                            div { class: "text-center p-4 bg-gray-50 rounded-lg",
+                                div { class: "text-3xl font-bold text-gray-900",
+                                    "{rate_limit().map(|(mps, _)| mps).unwrap_or(0)}"
+                                }
+                                div { class: "text-sm text-gray-500 mt-1", "每秒消息数" }
+                            }
+                            div { class: "text-center p-4 bg-gray-50 rounded-lg",
+                                div { class: "text-3xl font-bold text-gray-900",
+                                    "{rate_limit().map(|(_, burst)| burst).unwrap_or(0)}"
+                                }
+                                div { class: "text-sm text-gray-500 mt-1", "突发数量" }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 fn format_timestamp(ts: u64) -> String {

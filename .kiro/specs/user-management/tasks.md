@@ -386,7 +386,7 @@ cargo build --package palpo-admin-ui
 
 ### B.3 Enhance User Advanced Features
 
-**Status**: [ ]
+**Status**: [x] **COMPLETED**
 
 **File**: `crates/admin-ui/src/pages/user_advanced.rs`
 
@@ -536,7 +536,7 @@ cargo test --package palpo-admin-server --test integration_user_management -- --
 |------|--------|
 | B.1 Enhance user list | [x] **COMPLETED** |
 | B.2 Enhance user detail | [x] **COMPLETED** |
-| B.3 Enhance advanced features | [ ] NOT STARTED |
+| B.3 Enhance advanced features | [x] **COMPLETED** |
 | B.4 Enhance account data | [ ] NOT STARTED |
 | B.5 Batch registration | [ ] NOT STARTED |
 | B.6 Frontend testing | [ ] NOT STARTED |
