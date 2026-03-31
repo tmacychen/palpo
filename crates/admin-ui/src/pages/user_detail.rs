@@ -9,6 +9,18 @@ use crate::models::AuthState;
 use crate::models::device::{DeviceInfo, DeviceListRequest};
 use crate::models::session::{SessionInfo, SessionListRequest, WhoisInfo};
 use crate::models::pusher::{PusherInfo, PusherListResponse};
+use crate::models::media::MediaInfo;
+
+/// Local struct matching backend MediaResponse for user media
+#[derive(serde::Deserialize, Clone, Debug)]
+struct UserMediaItem {
+    pub media_id: String,
+    pub user_id: String,
+    pub media_type: Option<String>,
+    pub upload_name: Option<String>,
+    pub file_size: i64,
+    pub created_ts: Option<u64>,
+}
 use crate::components::loading::Spinner;
 use crate::components::feedback::ErrorMessage;
 use crate::services::user_admin_api::UserAdminAPI;
@@ -24,6 +36,7 @@ enum UserDetailTab {
     Devices,
     Connections,
     Pushers,
+    Media,
 }
 
 /// User detail page component with tabbed interface
@@ -120,6 +133,7 @@ pub fn UserDetail(user_id: String) -> Element {
                             TabButton { label: "设备", icon: "📱", active: active_tab() == UserDetailTab::Devices, onclick: move |_| active_tab.set(UserDetailTab::Devices) },
                             TabButton { label: "连接", icon: "🔌", active: active_tab() == UserDetailTab::Connections, onclick: move |_| active_tab.set(UserDetailTab::Connections) },
                             TabButton { label: "推送器", icon: "🔔", active: active_tab() == UserDetailTab::Pushers, onclick: move |_| active_tab.set(UserDetailTab::Pushers) },
+                            TabButton { label: "媒体", icon: "🖼️", active: active_tab() == UserDetailTab::Media, onclick: move |_| active_tab.set(UserDetailTab::Media) },
                         }
                     }
                     div { class: "p-6",
@@ -152,6 +166,7 @@ pub fn UserDetail(user_id: String) -> Element {
                             UserDetailTab::Devices => rsx! { DevicesTab { user_id: u.user_id.clone() } },
                             UserDetailTab::Connections => rsx! { ConnectionsTab { user_id: u.user_id.clone() } },
                             UserDetailTab::Pushers => rsx! { PushersTab { user_id: u.user_id.clone() } },
+                            UserDetailTab::Media => rsx! { MediaTab { user_id: u.user_id.clone() } },
                         }
                     }
                 }
@@ -743,6 +758,138 @@ fn PushersTab(user_id: String) -> Element {
             }
         }
     }
+}
+
+#[component]
+fn MediaTab(user_id: String) -> Element {
+    let media_list = use_signal(|| Vec::<UserMediaItem>::new());
+    let loading = use_signal(|| true);
+    let error = use_signal(|| None::<String>);
+    let total_size = use_signal(|| 0i64);
+    let auth_state = use_context::<Signal<AuthState>>();
+
+    use_effect(move || {
+        let user_id = user_id.clone();
+        let mut loading = loading;
+        let mut error = error;
+        let mut media_list = media_list;
+        let mut total_size = total_size;
+
+        let audit_logger = AuditLogger::new(1000);
+        let api_client = ApiClient::new("http://localhost:8081");
+
+        spawn_local(async move {
+            loading.set(true);
+            error.set(None);
+
+            let path = format!("/api/v1/users/{}/media", user_id);
+            match api_client.get_json::<serde_json::Value>(&path).await {
+                Ok(resp) => {
+                    if let Some(media_arr) = resp.get("media").and_then(|v| v.as_array()) {
+                        let items: Vec<UserMediaItem> = media_arr.iter().filter_map(|v| {
+                            serde_json::from_value(v.clone()).ok()
+                        }).collect();
+                        let size: i64 = items.iter().map(|m| m.file_size).sum();
+                        total_size.set(size);
+                        media_list.set(items);
+                    }
+                }
+                Err(e) => {
+                    error.set(Some(format!("获取媒体列表失败: {}", e)));
+                }
+            }
+            loading.set(false);
+        });
+    });
+
+    rsx! {
+        div { class: "p-4 sm:p-6 space-y-6",
+            div { class: "flex items-center justify-between",
+                h3 { class: "text-lg font-medium text-gray-900", "媒体文件" }
+                if !media_list().is_empty() {
+                    div { class: "text-sm text-gray-500",
+                        "共 {media_list().len()} 个文件，总大小 {format_size(total_size() as u64)}"
+                    }
+                }
+            }
+
+            if let Some(err) = error() {
+                div { class: "p-4 bg-red-50 border border-red-200 rounded-md",
+                    p { class: "text-sm text-red-600", "{err}" }
+                }
+            }
+
+            if loading() {
+                div { class: "p-12 text-center",
+                    Spinner { size: "large".to_string(), message: Some("加载媒体列表...".to_string()) }
+                }
+            } else if media_list().is_empty() {
+                div { class: "text-center py-12",
+                    div { class: "text-gray-400 text-5xl mb-4", "🖼️" }
+                    p { class: "text-gray-500 text-lg", "暂无媒体文件" }
+                    p { class: "text-gray-400 text-sm mt-2", "该用户还没有上传任何媒体文件" }
+                }
+            } else {
+                div { class: "overflow-x-auto",
+                    table { class: "min-w-full divide-y divide-gray-200",
+                        thead { class: "bg-gray-50",
+                            tr {
+                                th { class: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider", "文件名" }
+                                th { class: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider", "类型" }
+                                th { class: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider", "大小" }
+                                th { class: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider", "上传时间" }
+                            }
+                        }
+                        tbody { class: "bg-white divide-y divide-gray-200",
+                            for item in media_list() {
+                                tr { class: "hover:bg-gray-50",
+                                    td { class: "px-6 py-4 whitespace-nowrap",
+                                        div { class: "flex items-center gap-2",
+                                            span { class: "text-xl",
+                                                {
+                                                    let ct = item.media_type.as_deref().unwrap_or("");
+                                                    if ct.starts_with("image/") { "🖼️" }
+                                                    else if ct.starts_with("video/") { "🎬" }
+                                                    else if ct.starts_with("audio/") { "🎵" }
+                                                    else { "📄" }
+                                                }
+                                            }
+                                            div {
+                                                div { class: "text-sm font-medium text-gray-900",
+                                                    "{item.upload_name.as_ref().unwrap_or(&item.media_id)}"
+                                                }
+                                                div { class: "text-xs text-gray-500 font-mono", "{item.media_id}" }
+                                            }
+                                        }
+                                    }
+                                    td { class: "px-6 py-4 whitespace-nowrap text-sm text-gray-500",
+                                        "{item.media_type.as_ref().unwrap_or(&\"未知\".to_string())}"
+                                    }
+                                    td { class: "px-6 py-4 whitespace-nowrap text-sm text-gray-500",
+                                        "{format_size(item.file_size as u64)}"
+                                    }
+                                    td { class: "px-6 py-4 whitespace-nowrap text-sm text-gray-500",
+                                        if let Some(ts) = item.created_ts {
+                                            "{format_timestamp(ts)}"
+                                        } else {
+                                            "未知"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn format_size(bytes: u64) -> String {
+    if bytes < 1024 { format!("{} B", bytes) }
+    else if bytes < 1024 * 1024 { format!("{:.1} KB", bytes as f64 / 1024.0) }
+    else if bytes < 1024 * 1024 * 1024 { format!("{:.1} MB", bytes as f64 / (1024.0 * 1024.0)) }
+    else { format!("{:.1} GB", bytes as f64 / (1024.0 * 1024.0 * 1024.0)) }
 }
 
 fn format_timestamp(ts: u64) -> String {
