@@ -73,7 +73,8 @@ pub fn SetupWizardPage() -> Element {
         password_validation.read().is_valid() && *passwords_match.read()
     });
 
-    let handle_setup = move |_| {
+    let handle_setup = move |evt: FormEvent| {
+        evt.prevent_default();
         let pwd = password.read().clone();
         let confirm = confirm_password.read().clone();
 
@@ -113,7 +114,8 @@ pub fn SetupWizardPage() -> Element {
         });
     };
 
-    let handle_migration = move |_| {
+    let handle_migration = move |evt: FormEvent| {
+        evt.prevent_default();
         let pwd = password.read().clone();
 
         if pwd.is_empty() {
@@ -225,7 +227,6 @@ pub fn SetupWizardPage() -> Element {
                     form {
                         class: "mt-8 space-y-6",
                         onsubmit: handle_migration,
-                        prevent_default: "onsubmit",
 
                         div { class: "rounded-md shadow-sm",
                             div {
@@ -276,7 +277,6 @@ pub fn SetupWizardPage() -> Element {
                     form {
                         class: "mt-8 space-y-6",
                         onsubmit: handle_setup,
-                        prevent_default: "onsubmit",
 
                         div { class: "rounded-md shadow-sm space-y-4",
                             // Username field (fixed as "admin")

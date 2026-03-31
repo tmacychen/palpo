@@ -121,7 +121,7 @@ cargo build --package palpo-admin-server
 
 ### A.4 Rewrite device_handler.rs Using PalpoClient
 
-**Status**: [ ] **NOT STARTED**
+**Status**: [x] **COMPLETED**
 
 **File**: `crates/admin-server/src/handlers/device_handler.rs`
 
@@ -146,7 +146,7 @@ cargo test --package palpo-admin-server device_handler -- --nocapture
 
 ### A.5 Rewrite session_handler.rs Using PalpoClient
 
-**Status**: [ ] **NOT STARTED**
+**Status**: [x] **COMPLETED**
 
 **File**: `crates/admin-server/src/handlers/session_handler.rs`
 
@@ -169,7 +169,7 @@ cargo test --package palpo-admin-server session_handler -- --nocapture
 
 ### A.6 Rewrite rate_limit_handler.rs Using PalpoClient
 
-**Status**: [ ] **NOT STARTED**
+**Status**: [x] **COMPLETED**
 
 **File**: `crates/admin-server/src/handlers/rate_limit_handler.rs`
 
@@ -194,7 +194,7 @@ cargo test --package palpo-admin-server rate_limit_handler -- --nocapture
 
 ### A.7 Rewrite media_handler.rs Using PalpoClient
 
-**Status**: [ ] **NOT STARTED**
+**Status**: [x] **COMPLETED**
 
 **File**: `crates/admin-server/src/handlers/media_handler.rs`
 
@@ -218,7 +218,7 @@ cargo test --package palpo-admin-server media_handler -- --nocapture
 
 ### A.8 Rewrite shadow_ban_handler.rs Using PalpoClient
 
-**Status**: [ ] **NOT STARTED**
+**Status**: [x] **COMPLETED**
 
 **File**: `crates/admin-server/src/handlers/shadow_ban_handler.rs`
 
@@ -242,7 +242,7 @@ cargo test --package palpo-admin-server shadow_ban_handler -- --nocapture
 
 ### A.9 Rewrite threepid_handler.rs Using PalpoClient
 
-**Status**: [ ] **NOT STARTED**
+**Status**: [x] **COMPLETED**
 
 **File**: `crates/admin-server/src/handlers/threepid_handler.rs`
 
