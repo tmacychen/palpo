@@ -3,7 +3,7 @@
 use dioxus::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 use crate::app::Route;
-use crate::models::user::{User, UserSortField, ListUsersRequest};
+use crate::models::user::{User, UserSortField, ListUsersRequest, BatchUserOperationRequest, BatchUserOperation};
 use crate::models::AuthState;
 use crate::models::room::SortOrder;
 use crate::components::loading::Spinner;
@@ -28,6 +28,8 @@ pub fn UserManager() -> Element {
     let total_count = use_signal(|| 0u32);
     let mut selected_users = use_signal(|| Vec::<String>::new());
     let mut show_batch_menu = use_signal(|| false);
+    let mut batch_loading = use_signal(|| false);
+    let mut batch_result = use_signal(|| None::<String>);
     
     let navigator = use_navigator();
     
@@ -46,6 +48,7 @@ pub fn UserManager() -> Element {
     let audit_logger = AuditLogger::new(1000);
     let api_client = ApiClient::new("http://localhost:8081");
     let api = UserAdminAPI::new(audit_logger, api_client);
+    let api_for_batch = api.clone();
 
     // Load users from API
     use_effect(move || {
@@ -191,32 +194,116 @@ pub fn UserManager() -> Element {
                         div { class: "relative",
                             button {
                                 class: "inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+                                disabled: batch_loading(),
                                 onclick: move |_| show_batch_menu.set(!show_batch_menu()),
-                                "批量操作 ▼"
+                                if batch_loading() { "处理中..." } else { "批量操作 ▼" }
                             }
                             if show_batch_menu() {
                                 div { class: "absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10",
                                     div { class: "py-1",
                                         button {
                                             class: "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100",
-                                            onclick: move |_| {
-                                                // TODO: Implement batch send notification
-                                                show_batch_menu.set(false);
+                                            onclick: {
+                                                let api = api_for_batch.clone();
+                                                let admin_user = admin_user.clone();
+                                                move |_| {
+                                                    show_batch_menu.set(false);
+                                                    let ids = selected_users();
+                                                    if ids.is_empty() { return; }
+                                                    let api = api.clone();
+                                                    let admin_user = admin_user.clone();
+                                                    batch_loading.set(true);
+                                                    batch_result.set(None);
+                                                    spawn_local(async move {
+                                                        let req = BatchUserOperationRequest {
+                                                            user_ids: ids.clone(),
+                                                            operation: BatchUserOperation::SetAdmin { is_admin: false },
+                                                        };
+                                                        match api.batch_operation(req, &admin_user).await {
+                                                            Ok(r) => batch_result.set(Some(format!("已停用 {} 个用户", r.processed_count))),
+                                                            Err(e) => batch_result.set(Some(format!("操作失败: {}", e))),
+                                                        }
+                                                        batch_loading.set(false);
+                                                        selected_users.set(Vec::new());
+                                                    });
+                                                }
                                             },
-                                            "📧 发送服务器通知"
+                                            "🚫 批量停用"
+                                        }
+                                        button {
+                                            class: "block w-full text-left px-4 py-2 text-sm text-purple-700 hover:bg-purple-50",
+                                            onclick: {
+                                                let api = api_for_batch.clone();
+                                                let admin_user = admin_user.clone();
+                                                move |_| {
+                                                    show_batch_menu.set(false);
+                                                    let ids = selected_users();
+                                                    if ids.is_empty() { return; }
+                                                    let api = api.clone();
+                                                    let admin_user = admin_user.clone();
+                                                    batch_loading.set(true);
+                                                    batch_result.set(None);
+                                                    spawn_local(async move {
+                                                        let req = BatchUserOperationRequest {
+                                                            user_ids: ids.clone(),
+                                                            operation: BatchUserOperation::SetAdmin { is_admin: true },
+                                                        };
+                                                        match api.batch_operation(req, &admin_user).await {
+                                                            Ok(r) => batch_result.set(Some(format!("已设置 {} 个用户为管理员", r.processed_count))),
+                                                            Err(e) => batch_result.set(Some(format!("操作失败: {}", e))),
+                                                        }
+                                                        batch_loading.set(false);
+                                                        selected_users.set(Vec::new());
+                                                    });
+                                                }
+                                            },
+                                            "👑 批量设为管理员"
                                         }
                                         button {
                                             class: "block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50",
-                                            onclick: move |_| {
-                                                // TODO: Implement batch delete
-                                                show_batch_menu.set(false);
+                                            onclick: {
+                                                let api = api_for_batch.clone();
+                                                let admin_user = admin_user.clone();
+                                                move |_| {
+                                                    show_batch_menu.set(false);
+                                                    let ids = selected_users();
+                                                    if ids.is_empty() { return; }
+                                                    let api = api.clone();
+                                                    let admin_user = admin_user.clone();
+                                                    batch_loading.set(true);
+                                                    batch_result.set(None);
+                                                    spawn_local(async move {
+                                                        let req = BatchUserOperationRequest {
+                                                            user_ids: ids.clone(),
+                                                            operation: BatchUserOperation::Deactivate { erase_data: false, leave_rooms: false },
+                                                        };
+                                                        match api.batch_operation(req, &admin_user).await {
+                                                            Ok(r) => batch_result.set(Some(format!("已删除 {} 个用户", r.processed_count))),
+                                                            Err(e) => batch_result.set(Some(format!("操作失败: {}", e))),
+                                                        }
+                                                        batch_loading.set(false);
+                                                        selected_users.set(Vec::new());
+                                                    });
+                                                }
                                             },
-                                            "🗑️ 删除用户"
+                                            "🗑️ 批量删除用户"
                                         }
                                     }
                                 }
                             }
                         }
+                    }
+                }
+            }
+
+            // Batch result notification
+            if let Some(msg) = batch_result() {
+                div { class: "bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between",
+                    span { class: "text-sm text-green-800", "{msg}" }
+                    button {
+                        class: "text-green-600 hover:text-green-800 text-sm",
+                        onclick: move |_| batch_result.set(None),
+                        "✕"
                     }
                 }
             }

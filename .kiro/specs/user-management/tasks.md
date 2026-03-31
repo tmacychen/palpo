@@ -348,7 +348,7 @@ cargo build --package palpo-admin-ui
 
 ### B.1 Enhance User List Functionality
 
-**Status**: [ ]
+**Status**: [x] **COMPLETED**
 
 **File**: `crates/admin-ui/src/pages/user_manager.rs`
 
@@ -534,7 +534,7 @@ cargo test --package palpo-admin-server --test integration_user_management -- --
 ### Frontend Enhancement Tasks (B.1-B.6)
 | Task | Status |
 |------|--------|
-| B.1 Enhance user list | [ ] NOT STARTED |
+| B.1 Enhance user list | [x] **COMPLETED** |
 | B.2 Enhance user detail | [ ] NOT STARTED |
 | B.3 Enhance advanced features | [ ] NOT STARTED |
 | B.4 Enhance account data | [ ] NOT STARTED |
