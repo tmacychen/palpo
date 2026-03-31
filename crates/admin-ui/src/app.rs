@@ -3,7 +3,7 @@
 use dioxus::prelude::*;
 use crate::models::{AuthState, WebConfigData};
 use crate::hooks::use_auth;
-use crate::pages::{LoginPage, AdminDashboard, SetupWizardPage, PasswordChangePage, ServerControlPage, MatrixAdminCreatePage, UserManager, RoomManager, RoomDetailPage as RoomDetailPageComponent, ConfigModeSwitcher};
+use crate::pages::{LoginPage, AdminDashboard, SetupWizardPage, PasswordChangePage, ServerControlPage, MatrixAdminCreatePage, UserManager, RoomManager, RoomDetailPage as RoomDetailPageComponent, ConfigModeSwitcher, BatchUserRegistrationPage};
 use crate::components::forms::UserForm;
 use crate::services::api_client::init_api_client;
 use crate::services::webui_auth_api::WebUIAuthAPI;
@@ -29,6 +29,8 @@ pub enum Route {
     Users {},
     #[route("/admin/users/new")]
     UserCreate {},
+    #[route("/admin/users/batch")]
+    UserBatchRegister {},
     #[route("/admin/users/:user_id")]
     UserDetailPage { user_id: String },
     #[route("/admin/rooms")]
@@ -222,6 +224,14 @@ fn UserCreate() -> Element {
                 navigator.push(Route::Users {});
             }
         }
+    }
+}
+
+/// Batch user registration page component
+#[component]
+fn UserBatchRegister() -> Element {
+    rsx! {
+        BatchUserRegistrationPage {}
     }
 }
 
