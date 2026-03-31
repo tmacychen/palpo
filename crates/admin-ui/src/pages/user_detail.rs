@@ -39,6 +39,7 @@ enum UserDetailTab {
     Media,
     Rooms,
     RateLimit,
+    AccountData,
 }
 
 /// User detail page component with tabbed interface
@@ -138,6 +139,7 @@ pub fn UserDetail(user_id: String) -> Element {
                             TabButton { label: "媒体", icon: "🖼️", active: active_tab() == UserDetailTab::Media, onclick: move |_| active_tab.set(UserDetailTab::Media) },
                             TabButton { label: "房间", icon: "🏠", active: active_tab() == UserDetailTab::Rooms, onclick: move |_| active_tab.set(UserDetailTab::Rooms) },
                             TabButton { label: "速率限制", icon: "⚡", active: active_tab() == UserDetailTab::RateLimit, onclick: move |_| active_tab.set(UserDetailTab::RateLimit) },
+                            TabButton { label: "账户数据", icon: "🔗", active: active_tab() == UserDetailTab::AccountData, onclick: move |_| active_tab.set(UserDetailTab::AccountData) },
                         }
                     }
                     div { class: "p-6",
@@ -173,6 +175,7 @@ pub fn UserDetail(user_id: String) -> Element {
                             UserDetailTab::Media => rsx! { MediaTab { user_id: u.user_id.clone() } },
                             UserDetailTab::Rooms => rsx! { RoomsTab { user_id: u.user_id.clone() } },
                             UserDetailTab::RateLimit => rsx! { RateLimitTab { user_id: u.user_id.clone() } },
+                            UserDetailTab::AccountData => rsx! { AccountDataTab { user_id: u.user_id.clone() } },
                         }
                     }
                 }
@@ -885,6 +888,168 @@ fn MediaTab(user_id: String) -> Element {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+/// Account data tab - shows threepids and external IDs
+#[component]
+fn AccountDataTab(user_id: String) -> Element {
+    let threepids = use_signal(|| Vec::<serde_json::Value>::new());
+    let external_ids = use_signal(|| Vec::<serde_json::Value>::new());
+    let loading = use_signal(|| true);
+    let error = use_signal(|| None::<String>);
+
+    use_effect(move || {
+        let user_id = user_id.clone();
+        let mut loading = loading;
+        let mut error = error;
+        let mut threepids = threepids;
+        let mut external_ids = external_ids;
+
+        let api_client = ApiClient::new("http://localhost:8081");
+
+        spawn_local(async move {
+            loading.set(true);
+            error.set(None);
+
+            // Fetch threepids
+            let path = format!("/api/v1/users/{}/threepids", user_id);
+            match api_client.get_json::<serde_json::Value>(&path).await {
+                Ok(resp) => {
+                    if let Some(arr) = resp.get("threepids").and_then(|v| v.as_array()) {
+                        threepids.set(arr.clone());
+                    }
+                }
+                Err(_) => {} // Non-fatal
+            }
+
+            // Fetch external IDs
+            let path = format!("/api/v1/users/{}/external_ids", user_id);
+            match api_client.get_json::<serde_json::Value>(&path).await {
+                Ok(resp) => {
+                    if let Some(arr) = resp.get("external_ids").and_then(|v| v.as_array()) {
+                        external_ids.set(arr.clone());
+                    }
+                }
+                Err(_) => {} // Non-fatal
+            }
+
+            loading.set(false);
+        });
+    });
+
+    rsx! {
+        div { class: "p-4 sm:p-6 space-y-8",
+            // Threepids section
+            div {
+                div { class: "flex items-center justify-between mb-4",
+                    h3 { class: "text-lg font-medium text-gray-900", "第三方标识符 (3PID)" }
+                    if !threepids().is_empty() {
+                        span { class: "text-sm text-gray-500", "共 {threepids().len()} 个" }
+                    }
+                }
+
+                if loading() {
+                    div { class: "p-8 text-center",
+                        Spinner { size: "medium".to_string(), message: Some("加载中...".to_string()) }
+                    }
+                } else if threepids().is_empty() {
+                    div { class: "text-center py-8 bg-gray-50 rounded-lg",
+                        div { class: "text-gray-400 text-3xl mb-2", "📧" }
+                        p { class: "text-gray-500 text-sm", "未绑定任何第三方标识符" }
+                    }
+                } else {
+                    div { class: "overflow-x-auto",
+                        table { class: "min-w-full divide-y divide-gray-200",
+                            thead { class: "bg-gray-50",
+                                tr {
+                                    th { class: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider", "类型" }
+                                    th { class: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider", "地址" }
+                                }
+                            }
+                            tbody { class: "bg-white divide-y divide-gray-200",
+                                for item in threepids() {
+                                    tr { class: "hover:bg-gray-50",
+                                        td { class: "px-6 py-4 whitespace-nowrap",
+                                            div { class: "flex items-center gap-2",
+                                                span { class: "text-xl",
+                                                    {
+                                                        match item.get("medium").and_then(|v| v.as_str()).unwrap_or("") {
+                                                            "email" => "📧",
+                                                            "msisdn" => "📱",
+                                                            _ => "🔗",
+                                                        }
+                                                    }
+                                                }
+                                                span { class: "text-sm font-medium text-gray-900 capitalize",
+                                                    "{item.get(\"medium\").and_then(|v| v.as_str()).unwrap_or(\"未知\")}"
+                                                }
+                                            }
+                                        }
+                                        td { class: "px-6 py-4 whitespace-nowrap text-sm text-gray-700",
+                                            "{item.get(\"address\").and_then(|v| v.as_str()).unwrap_or(\"-\")}"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // External IDs section
+            div {
+                div { class: "flex items-center justify-between mb-4",
+                    h3 { class: "text-lg font-medium text-gray-900", "SSO 外部标识符" }
+                    if !external_ids().is_empty() {
+                        span { class: "text-sm text-gray-500", "共 {external_ids().len()} 个" }
+                    }
+                }
+
+                if !loading() {
+                    if external_ids().is_empty() {
+                        div { class: "text-center py-8 bg-gray-50 rounded-lg",
+                            div { class: "text-gray-400 text-3xl mb-2", "🔐" }
+                            p { class: "text-gray-500 text-sm", "未绑定任何 SSO 外部标识符" }
+                        }
+                    } else {
+                        div { class: "overflow-x-auto",
+                            table { class: "min-w-full divide-y divide-gray-200",
+                                thead { class: "bg-gray-50",
+                                    tr {
+                                        th { class: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider", "认证提供商" }
+                                        th { class: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider", "外部 ID" }
+                                    }
+                                }
+                                tbody { class: "bg-white divide-y divide-gray-200",
+                                    for item in external_ids() {
+                                        tr { class: "hover:bg-gray-50",
+                                            td { class: "px-6 py-4 whitespace-nowrap",
+                                                div { class: "flex items-center gap-2",
+                                                    span { class: "text-xl", "🔐" }
+                                                    span { class: "text-sm font-medium text-gray-900",
+                                                        "{item.get(\"auth_provider\").and_then(|v| v.as_str()).unwrap_or(\"未知\")}"
+                                                    }
+                                                }
+                                            }
+                                            td { class: "px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700",
+                                                "{item.get(\"external_id\").and_then(|v| v.as_str()).unwrap_or(\"-\")}"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if let Some(err) = error() {
+                div { class: "p-4 bg-red-50 border border-red-200 rounded-md",
+                    p { class: "text-sm text-red-600", "{err}" }
                 }
             }
         }
