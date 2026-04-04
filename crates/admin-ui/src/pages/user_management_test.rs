@@ -14,6 +14,7 @@
 //! - Batch operations
 
 use rand::Rng;
+use crate::utils::time_compat::current_time_secs;
 
 // ============================================================================
 // Model Tests
@@ -438,10 +439,7 @@ mod timestamp_formatting_tests {
     /// Test: Current timestamp formats without error
     #[test]
     fn test_current_timestamp() {
-        let now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
+        let now = current_time_secs();
         
         let formatted = format_timestamp(now);
         assert_ne!(formatted, "无效时间");

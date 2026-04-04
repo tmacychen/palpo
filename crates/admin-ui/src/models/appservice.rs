@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::time::SystemTime;
+use crate::utils::time_compat::current_time_secs;
 
 /// Appservice information for management
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -238,22 +238,14 @@ impl Appservice {
 
     /// Get age in days since creation
     pub fn age_in_days(&self) -> u64 {
-        let now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-        
-        (now - self.created_at) / 86400 // 86400 seconds in a day
+        let now = current_time_secs();
+        (now - self.created_at) / 86400
     }
 
     /// Get days since last ping
     pub fn days_since_last_ping(&self) -> Option<u64> {
         self.last_ping.map(|last_ping| {
-            let now = SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap()
-                .as_secs();
-            
+            let now = current_time_secs();
             (now - last_ping) / 86400
         })
     }

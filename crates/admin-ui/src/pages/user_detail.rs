@@ -791,7 +791,7 @@ fn MediaTab(user_id: String) -> Element {
             loading.set(true);
             error.set(None);
 
-            let path = format!("/api/v1/users/{}/media", user_id);
+            let path = format!("/api/v1/admin/users/{}/media", user_id);
             match api_client.get_json::<serde_json::Value>(&path).await {
                 Ok(resp) => {
                     if let Some(media_arr) = resp.get("media").and_then(|v| v.as_array()) {
@@ -916,7 +916,7 @@ fn AccountDataTab(user_id: String) -> Element {
             error.set(None);
 
             // Fetch threepids
-            let path = format!("/api/v1/users/{}/threepids", user_id);
+            let path = format!("/api/v1/admin/users/{}/threepids", user_id);
             match api_client.get_json::<serde_json::Value>(&path).await {
                 Ok(resp) => {
                     if let Some(arr) = resp.get("threepids").and_then(|v| v.as_array()) {
@@ -927,7 +927,7 @@ fn AccountDataTab(user_id: String) -> Element {
             }
 
             // Fetch external IDs
-            let path = format!("/api/v1/users/{}/external_ids", user_id);
+            let path = format!("/api/v1/admin/users/{}/external_ids", user_id);
             match api_client.get_json::<serde_json::Value>(&path).await {
                 Ok(resp) => {
                     if let Some(arr) = resp.get("external_ids").and_then(|v| v.as_array()) {
@@ -1082,7 +1082,7 @@ fn RoomsTab(user_id: String) -> Element {
             loading.set(true);
             error.set(None);
 
-            let path = format!("/api/v1/users/{}/joined_rooms", user_id);
+            let path = format!("/api/v1/admin/users/{}/joined_rooms", user_id);
             match api_client.get_json::<serde_json::Value>(&path).await {
                 Ok(resp) => {
                     if let Some(arr) = resp.get("joined_rooms").and_then(|v| v.as_array()) {
@@ -1178,7 +1178,7 @@ fn RateLimitTab(user_id: String) -> Element {
             loading.set(true);
             error.set(None);
 
-            let path = format!("/api/v1/users/{}/rate-limit", user_id);
+            let path = format!("/api/v1/admin/users/{}/rate-limit", user_id);
             match api_client.get_json::<serde_json::Value>(&path).await {
                 Ok(resp) => {
                     let mps = resp.get("messages_per_second").and_then(|v| v.as_i64()).unwrap_or(0);
@@ -1285,7 +1285,7 @@ fn RateLimitTab(user_id: String) -> Element {
                                                     "messages_per_second": mps,
                                                     "burst_count": burst
                                                 });
-                                                let path = format!("/api/v1/users/{}/rate-limit", user_id);
+                                                let path = format!("/api/v1/admin/users/{}/rate-limit", user_id);
                                                 match api_client.post_json(&path, &body).await {
                                                     Ok(_) => {
                                                         rate_limit.set(Some((mps as i64, burst as i64)));
@@ -1316,7 +1316,7 @@ fn RateLimitTab(user_id: String) -> Element {
                                                 let user_id = user_id_del.clone();
                                                 let api_client = ApiClient::new("http://localhost:8081");
                                                 spawn_local(async move {
-                                                    let path = format!("/api/v1/users/{}/rate-limit", user_id);
+                                                    let path = format!("/api/v1/admin/users/{}/rate-limit", user_id);
                                                     match api_client.delete(&path).await {
                                                         Ok(_) => {
                                                             rate_limit.set(None);

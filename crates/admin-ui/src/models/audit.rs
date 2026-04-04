@@ -51,7 +51,7 @@
 //! ```
 
 use serde::{Deserialize, Serialize};
-use std::time::SystemTime;
+use crate::utils::time_compat::current_time_secs;
 
 /// Represents a single audit log entry recording an administrative operation.
 ///
@@ -98,7 +98,7 @@ use std::time::SystemTime;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct AuditLogEntry {
     pub id: i64,
-    pub timestamp: SystemTime,
+    pub timestamp: u64,
     pub admin_user_id: String, // Using String instead of OwnedUserId for simplicity
     pub action: AuditAction,
     pub target_type: AuditTargetType,
@@ -204,7 +204,7 @@ pub enum AuditTargetType {
 /// // Query failed operations from the last hour
 /// let filter = AuditLogFilter {
 ///     success: Some(false),
-///     start_time: Some(SystemTime::now() - Duration::from_secs(3600)),
+///     start_time: Some(current_time_secs() - 3600),
 ///     limit: Some(20),
 ///     ..Default::default()
 /// };
@@ -218,8 +218,8 @@ pub enum AuditTargetType {
 /// ```
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct AuditLogFilter {
-    pub start_time: Option<SystemTime>,
-    pub end_time: Option<SystemTime>,
+    pub start_time: Option<u64>,
+    pub end_time: Option<u64>,
     pub admin_user_id: Option<String>,
     pub action: Option<AuditAction>,
     pub target_type: Option<AuditTargetType>,
@@ -325,7 +325,7 @@ impl AuditLogEntry {
     ) -> Self {
         Self {
             id: 0, // Will be set by the database
-            timestamp: SystemTime::now(),
+            timestamp: current_time_secs(),
             admin_user_id,
             action,
             target_type,
@@ -382,7 +382,7 @@ impl AuditLogEntry {
     ) -> Self {
         Self {
             id: 0,
-            timestamp: SystemTime::now(),
+            timestamp: current_time_secs(),
             admin_user_id,
             action,
             target_type,
@@ -434,7 +434,7 @@ impl AuditLogEntry {
     ) -> Self {
         Self {
             id: 0,
-            timestamp: SystemTime::now(),
+            timestamp: current_time_secs(),
             admin_user_id,
             action,
             target_type,

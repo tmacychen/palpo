@@ -42,7 +42,7 @@ impl UserAdminAPI {
             return Err(WebConfigError::permission("Insufficient permissions for user management"));
         }
 
-        let response: UserResponse = api_get_json(&format!("/api/v1/users/{}", user_id)).await?;
+        let response: UserResponse = api_get_json(&format!("/api/v1/admin/users/{}", user_id)).await?;
 
         // Log the action
         self.audit_logger.log_action(
@@ -88,7 +88,7 @@ impl UserAdminAPI {
             format!("?{}", query_params.join("&"))
         };
 
-        let response: ListUsersResponse = api_get_json(&format!("/api/v1/users{}", query)).await?;
+        let response: ListUsersResponse = api_get_json(&format!("/api/v1/admin/users{}", query)).await?;
 
         // Log the action
         self.audit_logger.log_action(
@@ -121,7 +121,7 @@ impl UserAdminAPI {
             return Err(WebConfigError::permission("Insufficient permissions for user management"));
         }
 
-        let stats: UserStatistics = api_get_json("/api/v1/users/stats").await?;
+        let stats: UserStatistics = api_get_json("/api/v1/admin/users/stats").await?;
 
         // Log the action
         self.audit_logger.log_action(
@@ -154,7 +154,7 @@ impl UserAdminAPI {
         }
 
         // Create user via API
-        let response: CreateUserResponse = api_post_json_response("/api/v1/users", &request).await?;
+        let response: CreateUserResponse = api_post_json_response("/api/v1/admin/users", &request).await?;
 
         // Log the action
         if response.success {
@@ -185,7 +185,7 @@ impl UserAdminAPI {
         }
 
         // Update user via API
-        let response: UpdateUserResponse = api_put_json_response(&format!("/api/v1/users/{}", user_id), &request).await?;
+        let response: UpdateUserResponse = api_put_json_response(&format!("/api/v1/admin/users/{}", user_id), &request).await?;
 
         // Log the action
         if response.success {
@@ -217,7 +217,7 @@ impl UserAdminAPI {
         }
 
         // Reset password via API
-        let response: ResetPasswordResponse = api_post_json_response(&format!("/api/v1/users/{}/reset-password", request.user_id), &request).await?;
+        let response: ResetPasswordResponse = api_post_json_response(&format!("/api/v1/admin/users/{}/reset-password", request.user_id), &request).await?;
 
         // Log the action
         if response.success {
@@ -245,7 +245,7 @@ impl UserAdminAPI {
         }
 
         // Deactivate user via API
-        let response: DeactivateUserResponse = api_post_json_response(&format!("/api/v1/users/{}/deactivate", request.user_id), &request).await?;
+        let response: DeactivateUserResponse = api_post_json_response(&format!("/api/v1/admin/users/{}/deactivate", request.user_id), &request).await?;
 
         // Log the action
         if response.success {
@@ -367,7 +367,7 @@ impl UserAdminAPI {
             return Err(WebConfigError::permission("Insufficient permissions for device management"));
         }
 
-        let response: DeviceListResponse = api_get_json(&format!("/api/v1/users/{}/devices", user_id)).await?;
+        let response: DeviceListResponse = api_get_json(&format!("/api/v1/admin/users/{}/devices", user_id)).await?;
 
         // Log the action
         self.audit_logger.log_action(
@@ -392,7 +392,7 @@ impl UserAdminAPI {
         }
 
         let response: DeleteDeviceResponse = api_post_json_response(
-            &format!("/api/v1/users/{}/devices/{}", user_id, device_id),
+            &format!("/api/v1/admin/users/{}/devices/{}", user_id, device_id),
             &serde_json::json!({})
         ).await?;
 
@@ -419,7 +419,7 @@ impl UserAdminAPI {
         }
 
         let response: BatchDeleteDeviceResponse = api_post_json_response(
-            &format!("/api/v1/users/{}/devices/delete", user_id),
+            &format!("/api/v1/admin/users/{}/devices/delete", user_id),
             &BatchDeleteDeviceRequest { device_ids, reason: None }
         ).await?;
 
@@ -452,7 +452,7 @@ impl UserAdminAPI {
             return Err(WebConfigError::permission("Insufficient permissions for session management"));
         }
 
-        let response: WhoisInfo = api_get_json(&format!("/api/v1/users/{}/whois", user_id)).await?;
+        let response: WhoisInfo = api_get_json(&format!("/api/v1/admin/users/{}/whois", user_id)).await?;
 
         // Log the action
         self.audit_logger.log_action(
@@ -536,7 +536,7 @@ impl UserAdminAPI {
             return Err(WebConfigError::permission("Insufficient permissions for pusher management"));
         }
 
-        let response: PusherListResponse = api_get_json(&format!("/api/v1/users/{}/pushers", user_id)).await?;
+        let response: PusherListResponse = api_get_json(&format!("/api/v1/admin/users/{}/pushers", user_id)).await?;
 
         // Log the action
         self.audit_logger.log_action(
@@ -560,7 +560,7 @@ impl UserAdminAPI {
         }
 
         let response: UpdatePusherResponse = api_put_json_response(
-            &format!("/api/v1/users/{}/pushers/{}", user_id, request.pusher_id),
+            &format!("/api/v1/admin/users/{}/pushers/{}", user_id, request.pusher_id),
             &request
         ).await?;
 
@@ -587,7 +587,7 @@ impl UserAdminAPI {
         }
 
         let response: DeletePusherResponse = api_post_json_response(
-            &format!("/api/v1/users/{}/pushers/{}/delete", user_id, pusher_id),
+            &format!("/api/v1/admin/users/{}/pushers/{}/delete", user_id, pusher_id),
             &serde_json::json!({})
         ).await?;
 

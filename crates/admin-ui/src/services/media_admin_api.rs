@@ -9,8 +9,8 @@ use crate::models::{
     WebConfigError, AuditAction, AuditTargetType,
 };
 use crate::utils::audit_logger::AuditLogger;
+use crate::utils::time_compat::current_time_secs;
 use std::collections::HashMap;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Media administration API service
 #[derive(Clone)]
@@ -26,10 +26,9 @@ impl MediaAdminAPI {
     pub fn new(audit_logger: AuditLogger) -> Self {
         let media_files = std::sync::Arc::new(std::sync::RwLock::new(HashMap::new()));
         
-        // Add some sample media files for demonstration
         let mut files_map = media_files.write().unwrap();
         
-        let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+        let now = current_time_secs();
         
         // Sample image file
         files_map.insert(
@@ -715,11 +714,6 @@ impl MediaAdminAPI {
 
 /// Helper function to format timestamp to date string
 fn format_timestamp_to_date(timestamp: u64) -> String {
-    use std::time::Duration;
-    
-    let _datetime = UNIX_EPOCH + Duration::from_secs(timestamp);
-    // In a real implementation, you would use a proper date formatting library
-    // For now, we'll use a simple approximation
     let days_since_epoch = timestamp / 86400;
     let year = 1970 + (days_since_epoch / 365);
     let day_of_year = days_since_epoch % 365;
@@ -831,7 +825,7 @@ mod tests {
     #[tokio::test]
     async fn test_cleanup_old_media_dry_run() {
         let api = create_test_api();
-        let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+        let now = current_time_secs();
         let request = CleanupMediaRequest {
             before_timestamp: now + 3600, // 1 hour in the future (should match all files)
             include_local: true,

@@ -7,7 +7,7 @@
 use crate::types::{AdminError, ServerConfig, ListenerConfig, DatabaseConfig, WellKnownConfig};
 use serde_json::{json, Value as JsonValue};
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use tokio::fs;
 
 /// Configuration metadata for a single field

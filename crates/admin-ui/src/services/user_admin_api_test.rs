@@ -18,6 +18,7 @@ mod tests {
     use crate::models::user::*;
     use crate::models::auth::Permission;
     use crate::models::room::SortOrder;
+    use crate::utils::time_compat::current_time_secs;
 
     // ============================================================================
     // ListUsersRequest Tests
@@ -177,13 +178,7 @@ mod tests {
 
     #[test]
     fn test_user_age_in_days() {
-        use std::time::SystemTime;
-        
-        let one_day_ago = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs()
-            - 86400;
+        let one_day_ago = current_time_secs() - 86400;
         
         let user = User {
             user_id: "@user:example.com".to_string(),

@@ -146,11 +146,13 @@ pub async fn catch_status_error(
 ) {
     if let ResBody::Error(e) = &res.body {
         if let Some(e) = &e.cause {
-            if let Some(e) = e.downcast_ref::<ParseError>() {
-                #[cfg(debug_assertions)]
-                let matrix = MatrixError::bad_json(e.to_string());
-                #[cfg(not(debug_assertions))]
-                let matrix = MatrixError::bad_json("bad json");
+            if let Some(parse_error) = e.downcast_ref::<ParseError>() {
+                let error_msg = if cfg!(debug_assertions) {
+                    parse_error.to_string()
+                } else {
+                    "bad json".to_string()
+                };
+                let matrix = MatrixError::bad_json(error_msg);
                 matrix.write(req, depot, res).await;
                 ctrl.skip_rest();
             }

@@ -1,6 +1,6 @@
 use anyhow::Result;
 use palpo_admin_server::{
-    handlers::{webui_admin, server_control, matrix_admin},
+    handlers::{webui_admin, server_control, matrix_admin, auth_middleware::AuthMiddleware},
     MigrationRunner, MigrationService, SessionManager, WebUIAuthService,
     MatrixAdminCreationService, AuthService, PalpoClient, ServerControlAPI,
 };
@@ -127,6 +127,25 @@ async fn main() -> Result<()> {
     // Initialize Matrix admin state
     matrix_admin::init_matrix_admin_state(matrix_admin_state);
 
+    // Initialize user/device/session/rate-limit handler states
+    let server_name = env::var("SERVER_NAME")
+        .unwrap_or_else(|_| "localhost".to_string());
+
+    palpo_admin_server::handlers::user_handler::init_user_handler_state(
+        palpo_admin_server::handlers::user_handler::UserHandlerState::new(
+            palpo_client.clone(), server_name.clone()
+        )
+    );
+    palpo_admin_server::handlers::device_handler::init_device_handler_state(
+        palpo_admin_server::handlers::device_handler::DeviceHandlerState::new(palpo_client.clone())
+    );
+    palpo_admin_server::handlers::session_handler::init_session_handler_state(
+        palpo_admin_server::handlers::session_handler::SessionHandlerState::new(palpo_client.clone())
+    );
+    palpo_admin_server::handlers::rate_limit_handler::init_rate_limit_handler_state(
+        palpo_admin_server::handlers::rate_limit_handler::RateLimitHandlerState::new(palpo_client.clone())
+    );
+
     // Configure CORS - allow any origin for development
     let cors = Cors::new()
         .allow_origin(cors::Any)
@@ -234,6 +253,39 @@ async fn main() -> Result<()> {
                 .push(Router::with_path("/change-password")
                     .post(matrix_admin::change_matrix_admin_password)
                 )
+        )
+        .push(
+            Router::with_path("/api/v1/admin/users")
+                .hoop(AuthMiddleware::new(session_manager.clone()))
+                .push(Router::with_path("").get(palpo_admin_server::handlers::user_handler::list_users))
+                .push(Router::with_path("").post(palpo_admin_server::handlers::user_handler::create_user))
+                .push(Router::with_path("/stats").get(palpo_admin_server::handlers::user_handler::get_user_stats))
+                .push(Router::with_path("/username-available/<username>").get(palpo_admin_server::handlers::user_handler::check_username_available))
+                .push(Router::with_path("/<user_id>").get(palpo_admin_server::handlers::user_handler::get_user))
+                .push(Router::with_path("/<user_id>").put(palpo_admin_server::handlers::user_handler::update_user))
+                .push(Router::with_path("/<user_id>").delete(palpo_admin_server::handlers::user_handler::deactivate_user))
+                .push(Router::with_path("/<user_id>/deactivate").post(palpo_admin_server::handlers::user_handler::deactivate_user))
+                .push(Router::with_path("/<user_id>/details").get(palpo_admin_server::handlers::user_handler::get_user_details))
+                .push(Router::with_path("/<user_id>/reactivate").post(palpo_admin_server::handlers::user_handler::reactivate_user))
+                .push(Router::with_path("/<user_id>/admin").get(palpo_admin_server::handlers::user_handler::get_admin_status))
+                .push(Router::with_path("/<user_id>/admin").put(palpo_admin_server::handlers::user_handler::set_admin_status))
+                .push(Router::with_path("/<user_id>/shadow-ban").get(palpo_admin_server::handlers::user_handler::get_shadow_banned))
+                .push(Router::with_path("/<user_id>/shadow-ban").put(palpo_admin_server::handlers::user_handler::set_shadow_banned))
+                .push(Router::with_path("/<user_id>/locked").get(palpo_admin_server::handlers::user_handler::get_locked))
+                .push(Router::with_path("/<user_id>/locked").put(palpo_admin_server::handlers::user_handler::set_locked))
+                .push(Router::with_path("/<user_id>/devices").get(palpo_admin_server::handlers::device_handler::list_user_devices))
+                .push(Router::with_path("/<user_id>/devices/count").get(palpo_admin_server::handlers::device_handler::get_user_device_count))
+                .push(Router::with_path("/<user_id>/devices/<device_id>").get(palpo_admin_server::handlers::device_handler::get_device))
+                .push(Router::with_path("/<user_id>/devices/<device_id>").delete(palpo_admin_server::handlers::device_handler::delete_device))
+                .push(Router::with_path("/<user_id>/devices/delete").post(palpo_admin_server::handlers::device_handler::delete_devices))
+                .push(Router::with_path("/<user_id>/rate-limit").get(palpo_admin_server::handlers::rate_limit_handler::get_rate_limit))
+                .push(Router::with_path("/<user_id>/rate-limit").post(palpo_admin_server::handlers::rate_limit_handler::set_rate_limit))
+                .push(Router::with_path("/<user_id>/rate-limit").delete(palpo_admin_server::handlers::rate_limit_handler::delete_rate_limit))
+                .push(Router::with_path("/<user_id>/sessions").get(palpo_admin_server::handlers::session_handler::list_sessions))
+                .push(Router::with_path("/<user_id>/sessions/count").get(palpo_admin_server::handlers::session_handler::get_session_count))
+                .push(Router::with_path("/<user_id>/sessions").delete(palpo_admin_server::handlers::session_handler::delete_user_sessions))
+                .push(Router::with_path("/<user_id>/whois").get(palpo_admin_server::handlers::session_handler::get_whois))
+                .push(Router::with_path("/<user_id>/last-seen").get(palpo_admin_server::handlers::session_handler::get_last_seen))
         )
         .push(Router::with_path("/health").get(health_check));
 

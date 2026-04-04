@@ -1,8 +1,8 @@
 //! Session and connection management models
 
 use serde::{Deserialize, Serialize};
-use std::time::SystemTime;
 use crate::models::room::SortOrder;
+use crate::utils::time_compat::current_time_secs;
 
 /// Session information for a user connection
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -116,11 +116,7 @@ pub struct BatchTerminateSessionResponse {
 impl SessionInfo {
     /// Get session duration in seconds
     pub fn duration_seconds(&self) -> u64 {
-        let now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-        
+        let now = current_time_secs();
         now - self.login_ts
     }
 
@@ -141,11 +137,7 @@ impl SessionInfo {
 
     /// Get human-readable last activity time
     pub fn last_activity_readable(&self) -> String {
-        let now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-        
+        let now = current_time_secs();
         let diff = now - self.last_activity_ts;
         
         if diff < 60 {

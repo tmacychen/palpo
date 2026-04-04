@@ -1,18 +1,17 @@
 //! Server control and status models
 
 use serde::{Deserialize, Serialize};
-use std::time::{Duration, SystemTime};
 use std::collections::HashMap;
 
 /// Server status information
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct ServerStatus {
-    pub uptime: Duration,
+    pub uptime_secs: u64,
     pub version: String,
     pub features: Vec<String>,
     pub active_connections: u32,
     pub memory_usage: u64,
-    pub config_last_modified: SystemTime,
+    pub config_last_modified_ts: u64,
     pub hot_reload_supported: bool,
     pub is_healthy: bool,
     pub database_status: DatabaseStatus,
@@ -57,7 +56,7 @@ pub struct ConfigReloadResult {
     pub hot_reload_supported: bool,
     pub restart_required: bool,
     pub affected_services: Vec<String>,
-    pub reload_time: Duration,
+    pub reload_time_secs: u64,
 }
 
 /// Admin command for execution
@@ -77,10 +76,10 @@ pub struct CommandResult {
     pub success: bool,
     pub output: String,
     pub error: Option<String>,
-    pub execution_time: Duration,
+    pub execution_time_secs: u64,
     pub exit_code: Option<i32>,
     pub command: String,
-    pub started_at: SystemTime,
+    pub started_at_ts: u64,
 }
 
 /// Server restart request
@@ -181,7 +180,7 @@ impl ServerStatus {
 
     /// Get uptime in human-readable format
     pub fn uptime_string(&self) -> String {
-        let seconds = self.uptime.as_secs();
+        let seconds = self.uptime_secs;
         let days = seconds / 86400;
         let hours = (seconds % 86400) / 3600;
         let minutes = (seconds % 3600) / 60;

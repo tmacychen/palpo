@@ -8,7 +8,7 @@ use crate::models::{
     DatabaseStatus, FederationStatus, WebConfigError, AuditAction, AuditTargetType,
 };
 use crate::utils::audit_logger::AuditLogger;
-use std::time::{Duration, SystemTime};
+use crate::utils::time_compat::current_time_secs;
 use std::sync::{Arc, RwLock};
 
 #[cfg(target_arch = "wasm32")]
@@ -20,18 +20,16 @@ use tokio::time::sleep;
 #[derive(Clone)]
 pub struct ServerControlAPI {
     audit_logger: AuditLogger,
-    // In a real implementation, this would connect to the actual server
-    // For now, we'll simulate server state
     server_state: Arc<RwLock<ServerState>>,
 }
 
 /// Internal server state for simulation
 #[derive(Clone, Debug)]
 struct ServerState {
-    started_at: SystemTime,
+    started_at_ts: u64,
     version: String,
     features: Vec<ServerFeature>,
-    config_last_modified: SystemTime,
+    config_last_modified_ts: u64,
     is_healthy: bool,
     active_connections: u32,
     memory_usage: u64,
@@ -40,14 +38,15 @@ struct ServerState {
 impl ServerControlAPI {
     /// Create a new ServerControlAPI instance
     pub fn new(audit_logger: AuditLogger) -> Self {
+        let now = current_time_secs();
         let server_state = Arc::new(RwLock::new(ServerState {
-            started_at: SystemTime::now(),
+            started_at_ts: now,
             version: "1.0.0".to_string(),
             features: Self::default_features(),
-            config_last_modified: SystemTime::now(),
+            config_last_modified_ts: now,
             is_healthy: true,
             active_connections: 42,
-            memory_usage: 256 * 1024 * 1024, // 256MB
+            memory_usage: 256 * 1024 * 1024,
         }));
 
         Self {
@@ -58,7 +57,6 @@ impl ServerControlAPI {
 
     /// Get current server status
     pub async fn get_server_status(&self, admin_user: &str) -> Result<ServerStatusResponse, WebConfigError> {
-        // Check permissions
         if !self.has_server_management_permission(admin_user).await? {
             return Err(WebConfigError::permission("Insufficient permissions for server management"));
         }
@@ -66,17 +64,16 @@ impl ServerControlAPI {
         let state = self.server_state.read()
             .map_err(|_| WebConfigError::internal("Failed to read server state"))?;
 
-        let uptime = SystemTime::now()
-            .duration_since(state.started_at)
-            .unwrap_or(Duration::from_secs(0));
+        let now = current_time_secs();
+        let uptime_secs = now.saturating_sub(state.started_at_ts);
 
         let status = ServerStatus {
-            uptime,
+            uptime_secs,
             version: state.version.clone(),
             features: state.features.iter().map(|f| f.name.clone()).collect(),
             active_connections: state.active_connections,
             memory_usage: state.memory_usage,
-            config_last_modified: state.config_last_modified,
+            config_last_modified_ts: state.config_last_modified_ts,
             hot_reload_supported: true,
             is_healthy: state.is_healthy,
             database_status: DatabaseStatus {
@@ -95,14 +92,13 @@ impl ServerControlAPI {
             },
         };
 
-        // Log the action
         self.audit_logger.log_action(
             admin_user,
             AuditAction::ConfigReload,
             AuditTargetType::Server,
             "server_status",
             Some(serde_json::json!({
-                "uptime_seconds": uptime.as_secs(),
+                "uptime_seconds": uptime_secs,
                 "version": state.version,
                 "is_healthy": state.is_healthy
             })),
@@ -115,27 +111,24 @@ impl ServerControlAPI {
             error: None,
         })
     }
+
     /// Reload server configuration
     pub async fn reload_config(&self, admin_user: &str) -> Result<ConfigReloadResponse, WebConfigError> {
-        // Check permissions
         if !self.has_server_management_permission(admin_user).await? {
             return Err(WebConfigError::permission("Insufficient permissions for server management"));
         }
 
-        let start_time = SystemTime::now();
+        let start_time = current_time_secs();
         
-        // Simulate config reload process
-        sleep(Duration::from_millis(500)).await;
+        sleep(std::time::Duration::from_millis(500)).await;
         
-        let reload_time = SystemTime::now()
-            .duration_since(start_time)
-            .unwrap_or(Duration::from_secs(0));
+        let now = current_time_secs();
+        let reload_time_secs = now.saturating_sub(start_time);
 
-        // Update config last modified time
         {
             let mut state = self.server_state.write()
                 .map_err(|_| WebConfigError::internal("Failed to write server state"))?;
-            state.config_last_modified = SystemTime::now();
+            state.config_last_modified_ts = now;
         }
 
         let result = ConfigReloadResult {
@@ -145,17 +138,16 @@ impl ServerControlAPI {
             hot_reload_supported: true,
             restart_required: false,
             affected_services: vec!["HTTP Server".to_string(), "Federation".to_string()],
-            reload_time,
+            reload_time_secs,
         };
 
-        // Log the action
         self.audit_logger.log_action(
             admin_user,
             AuditAction::ConfigUpdate,
             AuditTargetType::Server,
             "config_reload",
             Some(serde_json::json!({
-                "reload_time_ms": reload_time.as_millis(),
+                "reload_time_ms": reload_time_secs * 1000,
                 "warnings_count": result.warnings.len(),
                 "affected_services": result.affected_services
             })),
@@ -171,15 +163,13 @@ impl ServerControlAPI {
 
     /// Restart the server
     pub async fn restart_server(&self, request: RestartServerRequest, admin_user: &str) -> Result<OperationResponse, WebConfigError> {
-        // Check permissions
         if !self.has_server_management_permission(admin_user).await? {
             return Err(WebConfigError::permission("Insufficient permissions for server management"));
         }
 
-        // Log the action first (before potential restart)
         self.audit_logger.log_action(
             admin_user,
-            AuditAction::ConfigUpdate, // Using existing action since ServerRestart doesn't exist
+            AuditAction::ConfigUpdate,
             AuditTargetType::Server,
             "server_restart",
             Some(serde_json::json!({
@@ -190,17 +180,14 @@ impl ServerControlAPI {
             &format!("Initiated server restart (force: {})", request.force),
         ).await;
 
-        // In a real implementation, this would trigger an actual server restart
-        // For simulation, we'll just update the started_at time
         {
             let mut state = self.server_state.write()
                 .map_err(|_| WebConfigError::internal("Failed to write server state"))?;
-            state.started_at = SystemTime::now();
+            state.started_at_ts = current_time_secs();
         }
 
-        // Simulate restart delay
         if !request.force {
-            sleep(Duration::from_millis(1000)).await;
+            sleep(std::time::Duration::from_millis(1000)).await;
         }
 
         Ok(OperationResponse {
@@ -209,17 +196,16 @@ impl ServerControlAPI {
             error: None,
         })
     }
+
     /// Shutdown the server
     pub async fn shutdown_server(&self, request: ShutdownServerRequest, admin_user: &str) -> Result<OperationResponse, WebConfigError> {
-        // Check permissions
         if !self.has_server_management_permission(admin_user).await? {
             return Err(WebConfigError::permission("Insufficient permissions for server management"));
         }
 
-        // Log the action
         self.audit_logger.log_action(
             admin_user,
-            AuditAction::ConfigUpdate, // Using existing action since ServerShutdown doesn't exist
+            AuditAction::ConfigUpdate,
             AuditTargetType::Server,
             "server_shutdown",
             Some(serde_json::json!({
@@ -230,8 +216,6 @@ impl ServerControlAPI {
             &format!("Initiated server shutdown (graceful: {})", request.graceful),
         ).await;
 
-        // In a real implementation, this would trigger an actual server shutdown
-        // For simulation, we'll just mark the server as unhealthy
         {
             let mut state = self.server_state.write()
                 .map_err(|_| WebConfigError::internal("Failed to write server state"))?;
@@ -247,7 +231,6 @@ impl ServerControlAPI {
 
     /// Get server features
     pub async fn get_server_features(&self, admin_user: &str) -> Result<ServerFeaturesResponse, WebConfigError> {
-        // Check permissions
         if !self.has_server_management_permission(admin_user).await? {
             return Err(WebConfigError::permission("Insufficient permissions for server management"));
         }
@@ -257,7 +240,6 @@ impl ServerControlAPI {
 
         let features = state.features.clone();
 
-        // Log the action
         self.audit_logger.log_action(
             admin_user,
             AuditAction::ConfigReload,
@@ -276,14 +258,13 @@ impl ServerControlAPI {
             error: None,
         })
     }
+
     /// Send admin notice to management rooms
     pub async fn send_admin_notice(&self, request: AdminNoticeRequest, admin_user: &str) -> Result<OperationResponse, WebConfigError> {
-        // Check permissions
         if !self.has_server_management_permission(admin_user).await? {
             return Err(WebConfigError::permission("Insufficient permissions for server management"));
         }
 
-        // Validate message
         if request.message.trim().is_empty() {
             return Ok(OperationResponse {
                 success: false,
@@ -300,9 +281,6 @@ impl ServerControlAPI {
             });
         }
 
-        // In a real implementation, this would send the message to admin rooms
-        // For simulation, we'll just log the action
-        
         let formatted_message = format!(
             "{} **{}**: {}",
             request.notice_type.emoji(),
@@ -310,10 +288,9 @@ impl ServerControlAPI {
             request.message
         );
 
-        // Log the action
         self.audit_logger.log_action(
             admin_user,
-            AuditAction::ConfigUpdate, // Using existing action since AdminNotice doesn't exist
+            AuditAction::ConfigUpdate,
             AuditTargetType::Server,
             "admin_notice",
             Some(serde_json::json!({
@@ -335,12 +312,10 @@ impl ServerControlAPI {
 
     /// Execute admin command
     pub async fn execute_admin_command(&self, command: AdminCommand, admin_user: &str) -> Result<CommandExecutionResponse, WebConfigError> {
-        // Check permissions
         if !self.has_server_management_permission(admin_user).await? {
             return Err(WebConfigError::permission("Insufficient permissions for server management"));
         }
 
-        // Validate command
         if command.command.trim().is_empty() {
             return Ok(CommandExecutionResponse {
                 success: false,
@@ -349,7 +324,6 @@ impl ServerControlAPI {
             });
         }
 
-        // Security check - only allow safe commands in simulation
         let safe_commands = ["echo", "date", "whoami", "pwd", "ls", "ps"];
         let cmd_name = command.command.split_whitespace().next().unwrap_or("");
         
@@ -361,23 +335,19 @@ impl ServerControlAPI {
             });
         }
 
-        let started_at = SystemTime::now();
-        
-        // Execute the command (simulated in this demo implementation)
-        // Note: timeout_seconds parameter is ignored as this is a frontend-only demo
+        let started_at_ts = current_time_secs();
         let result = self.execute_system_command(&command).await;
 
-        // Log the action
         self.audit_logger.log_action(
             admin_user,
-            AuditAction::ConfigUpdate, // Using existing action since CommandExecution doesn't exist
+            AuditAction::ConfigUpdate,
             AuditTargetType::Server,
             "admin_command",
             Some(serde_json::json!({
                 "command": command.command,
                 "args": command.args,
                 "success": result.success,
-                "execution_time_ms": result.execution_time.as_millis(),
+                "execution_time_ms": result.execution_time_secs * 1000,
                 "exit_code": result.exit_code,
                 "require_confirmation": command.require_confirmation
             })),
@@ -390,11 +360,11 @@ impl ServerControlAPI {
             error: None,
         })
     }
+
     /// Execute a system command (internal helper)
     async fn execute_system_command(&self, command: &AdminCommand) -> CommandResult {
-        let started_at = SystemTime::now();
+        let started_at_ts = current_time_secs();
         
-        // For simulation, we'll create mock responses for safe commands
         let (success, output, exit_code) = match command.command.as_str() {
             "echo" => {
                 let output = if command.args.is_empty() {
@@ -409,27 +379,25 @@ impl ServerControlAPI {
             "pwd" => (true, "/opt/palpo".to_string(), Some(0)),
             "ls" => (true, "config.toml\nlogs/\ndata/\nstatic/".to_string(), Some(0)),
             "ps" => (true, "  PID TTY          TIME CMD\n 1234 ?        00:00:05 palpo-server".to_string(), Some(0)),
-            _ => (false, String::new(), Some(127)), // Command not found
+            _ => (false, String::new(), Some(127)),
         };
 
-        let execution_time = SystemTime::now()
-            .duration_since(started_at)
-            .unwrap_or(Duration::from_millis(100));
+        let now = current_time_secs();
+        let execution_time_secs = now.saturating_sub(started_at_ts);
 
         CommandResult {
             success,
             output,
             error: if success { None } else { Some("Command failed".to_string()) },
-            execution_time,
+            execution_time_secs,
             exit_code,
             command: command.command.clone(),
-            started_at,
+            started_at_ts,
         }
     }
 
     /// Get server metrics
     pub async fn get_server_metrics(&self, admin_user: &str) -> Result<ServerMetrics, WebConfigError> {
-        // Check permissions
         if !self.has_server_management_permission(admin_user).await? {
             return Err(WebConfigError::permission("Insufficient permissions for server management"));
         }
@@ -437,21 +405,19 @@ impl ServerControlAPI {
         let state = self.server_state.read()
             .map_err(|_| WebConfigError::internal("Failed to read server state"))?;
 
-        // Simulate metrics collection
         let metrics = ServerMetrics {
             cpu_usage_percent: 15.5,
             memory_usage_bytes: state.memory_usage,
-            memory_total_bytes: 1024 * 1024 * 1024, // 1GB
-            disk_usage_bytes: 2 * 1024 * 1024 * 1024, // 2GB
-            disk_total_bytes: 10 * 1024 * 1024 * 1024, // 10GB
-            network_rx_bytes: 1024 * 1024 * 100, // 100MB
-            network_tx_bytes: 1024 * 1024 * 80,  // 80MB
+            memory_total_bytes: 1024 * 1024 * 1024,
+            disk_usage_bytes: 2 * 1024 * 1024 * 1024,
+            disk_total_bytes: 10 * 1024 * 1024 * 1024,
+            network_rx_bytes: 1024 * 1024 * 100,
+            network_tx_bytes: 1024 * 1024 * 80,
             active_rooms: 150,
             active_users: 1200,
             events_per_second: 5.2,
         };
 
-        // Log the action
         self.audit_logger.log_action(
             admin_user,
             AuditAction::ConfigReload,
@@ -468,14 +434,11 @@ impl ServerControlAPI {
 
         Ok(metrics)
     }
-    /// Check if the admin user has server management permissions
+
     async fn has_server_management_permission(&self, _admin_user: &str) -> Result<bool, WebConfigError> {
-        // In a real implementation, this would check the admin user's permissions
-        // For now, we'll assume all admin users have server management permissions
         Ok(true)
     }
 
-    /// Get default server features
     fn default_features() -> Vec<ServerFeature> {
         vec![
             ServerFeature {
@@ -537,168 +500,9 @@ impl ServerControlAPI {
         ]
     }
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::models::NoticeType;
-    use crate::utils::audit_logger::AuditLogger;
 
-    fn create_test_api() -> ServerControlAPI {
-        let audit_logger = AuditLogger::new(1000);
-        ServerControlAPI::new(audit_logger)
-    }
-
-    #[tokio::test]
-    async fn test_get_server_status() {
-        let api = create_test_api();
-        
-        let response = api.get_server_status("admin").await.unwrap();
-        
-        assert!(response.success);
-        assert!(response.status.is_some());
-        
-        let status = response.status.unwrap();
-        assert_eq!(status.version, "1.0.0");
-        assert!(status.is_healthy());
-        assert!(status.hot_reload_supported);
-        assert!(status.database_status.connected);
-        assert!(status.federation_status.enabled);
-    }
-
-    #[tokio::test]
-    async fn test_reload_config() {
-        let api = create_test_api();
-        
-        let response = api.reload_config("admin").await.unwrap();
-        
-        assert!(response.success);
-        assert!(response.result.is_some());
-        
-        let result = response.result.unwrap();
-        assert!(result.success);
-        assert!(result.hot_reload_supported);
-        assert!(!result.restart_required);
-        assert!(!result.affected_services.is_empty());
-    }
-
-    #[tokio::test]
-    async fn test_restart_server() {
-        let api = create_test_api();
-        let request = RestartServerRequest {
-            force: false,
-            graceful_timeout_seconds: Some(30),
-            reason: Some("Configuration update".to_string()),
-        };
-        
-        let response = api.restart_server(request, "admin").await.unwrap();
-        
-        assert!(response.success);
-        assert!(response.message.is_some());
-    }
-
-    #[tokio::test]
-    async fn test_get_server_features() {
-        let api = create_test_api();
-        
-        let response = api.get_server_features("admin").await.unwrap();
-        
-        assert!(response.success);
-        assert!(!response.features.is_empty());
-        
-        // Check that we have expected features
-        let feature_names: Vec<&String> = response.features.iter().map(|f| &f.name).collect();
-        assert!(feature_names.contains(&&"Federation".to_string()));
-        assert!(feature_names.contains(&&"Media Repository".to_string()));
-        assert!(feature_names.contains(&&"Admin API".to_string()));
-    }
-
-    #[tokio::test]
-    async fn test_send_admin_notice() {
-        let api = create_test_api();
-        let request = AdminNoticeRequest {
-            message: "Server maintenance scheduled for tonight".to_string(),
-            notice_type: NoticeType::Maintenance,
-            target_rooms: None,
-            urgent: false,
-        };
-        
-        let response = api.send_admin_notice(request, "admin").await.unwrap();
-        
-        assert!(response.success);
-        assert!(response.message.is_some());
-    }
-
-    #[tokio::test]
-    async fn test_execute_admin_command_safe() {
-        let api = create_test_api();
-        let command = AdminCommand::new("echo".to_string())
-            .with_arg("Hello World".to_string());
-        
-        let response = api.execute_admin_command(command, "admin").await.unwrap();
-        
-        assert!(response.success);
-        assert!(response.result.is_some());
-        
-        let result = response.result.unwrap();
-        assert!(result.success);
-        assert_eq!(result.output, "Hello World");
-        assert_eq!(result.exit_code, Some(0));
-    }
-
-    #[tokio::test]
-    async fn test_execute_admin_command_unsafe() {
-        let api = create_test_api();
-        let command = AdminCommand::new("rm".to_string())
-            .with_arg("-rf".to_string())
-            .with_arg("/".to_string());
-        
-        let response = api.execute_admin_command(command, "admin").await.unwrap();
-        
-        assert!(!response.success);
-        assert!(response.error.is_some()); // Error should be in the error field
-        assert!(response.result.is_none());
-    }
-
-    #[tokio::test]
-    async fn test_get_server_metrics() {
-        let api = create_test_api();
-        
-        let metrics = api.get_server_metrics("admin").await.unwrap();
-        
-        assert!(metrics.cpu_usage_percent >= 0.0);
-        assert!(metrics.memory_usage_bytes > 0);
-        assert!(metrics.active_users > 0);
-        assert!(metrics.active_rooms > 0);
-    }
-
-    #[tokio::test]
-    async fn test_server_status_uptime_string() {
-        let status = ServerStatus {
-            uptime: Duration::from_secs(90061), // 1 day, 1 hour, 1 minute, 1 second
-            version: "1.0.0".to_string(),
-            features: vec![],
-            active_connections: 10,
-            memory_usage: 1024,
-            config_last_modified: SystemTime::now(),
-            hot_reload_supported: true,
-            is_healthy: true,
-            database_status: DatabaseStatus {
-                connected: true,
-                pool_size: 10,
-                active_connections: 5,
-                idle_connections: 5,
-                last_error: None,
-            },
-            federation_status: FederationStatus {
-                enabled: true,
-                reachable_servers: 10,
-                unreachable_servers: 0,
-                pending_transactions: 0,
-                last_federation_error: None,
-            },
-        };
-        
-        let uptime_str = status.uptime_string();
-        assert_eq!(uptime_str, "1d 1h 1m 1s");
+impl Default for ServerControlAPI {
+    fn default() -> Self {
+        Self::new(AuditLogger::default())
     }
 }

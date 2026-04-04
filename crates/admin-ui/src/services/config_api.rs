@@ -5,9 +5,9 @@
 
 use crate::models::{config::*, error::WebConfigError, validation::{ConfigError, ConfigWarning, ValidationResult}};
 use crate::utils::fs_compat;
+use crate::utils::time_compat::current_time_secs;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
-use std::time::SystemTime;
 
 /// Configuration API service
 pub struct ConfigAPI;
@@ -251,7 +251,7 @@ impl ConfigAPI {
             .unwrap_or_else(|_| "palpo.toml".to_string()))
     }
     
-    async fn get_file_modified_time(path: &str) -> Result<SystemTime, WebConfigError> {
+    async fn get_file_modified_time(path: &str) -> Result<u64, WebConfigError> {
         let metadata = fs_compat::metadata(path)
             .await
             .map_err(|e| WebConfigError::filesystem_with_path(format!("Failed to get file metadata: {}", e), path))?;
@@ -269,10 +269,7 @@ impl ConfigAPI {
     }
     
     async fn create_backup(config_path: &str) -> Result<String, WebConfigError> {
-        let timestamp = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
+        let timestamp = current_time_secs();
         
         let backup_path = format!("{}.backup.{}", config_path, timestamp);
         
@@ -1012,7 +1009,7 @@ impl ConfigAPI {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ServerConfigResponse {
     pub config: WebConfigData,
-    pub last_modified: Option<SystemTime>,
+    pub last_modified: Option<u64>,
     pub checksum: Option<String>,
 }
 

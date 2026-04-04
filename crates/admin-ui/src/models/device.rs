@@ -1,8 +1,8 @@
 //! Device and session management models
 
 use serde::{Deserialize, Serialize};
-use std::time::SystemTime;
 use crate::models::room::SortOrder;
+use crate::utils::time_compat::current_time_secs;
 use chrono::{TimeZone, Utc};
 
 /// Device information for a user
@@ -108,22 +108,13 @@ pub struct SuspendDeviceResponse {
 impl DeviceInfo {
     /// Check if the device is currently active
     pub fn is_active(&self) -> bool {
-        let now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-        
-        // Device is considered active if seen within the last 24 hours
+        let now = current_time_secs();
         now - self.last_seen_ts < 86400
     }
 
     /// Get human-readable last seen time
     pub fn last_seen_readable(&self) -> String {
-        let now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-        
+        let now = current_time_secs();
         let diff = now - self.last_seen_ts;
         
         if diff < 60 {
@@ -135,11 +126,8 @@ impl DeviceInfo {
         } else if diff < 86400 * 7 {
             format!("{} 天前", diff / 86400)
         } else {
-            let dt = chrono::Utc.timestamp_opt(self.last_seen_ts as i64, 0).single();
-            match dt {
-                Some(d) => d.format("%Y-%m-%d").to_string(),
-                None => "未知".to_string(),
-            }
+            let dt = chrono::Utc.timestamp_opt(self.last_seen_ts as i64, 0).single().unwrap_or_else(|| chrono::DateTime::UNIX_EPOCH);
+            dt.format("%Y-%m-%d").to_string()
         }
     }
 

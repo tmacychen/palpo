@@ -1,7 +1,7 @@
 //! Room management models
 
 use serde::{Deserialize, Serialize};
-use std::time::SystemTime;
+use crate::utils::time_compat::current_time_secs;
 
 /// Room information for management
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -165,12 +165,8 @@ impl Room {
 
     /// Get room age in days since creation
     pub fn age_in_days(&self) -> u64 {
-        let now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-        
-        (now - self.creation_ts) / 86400 // 86400 seconds in a day
+        let now = current_time_secs();
+        (now - self.creation_ts) / 86400
     }
 
     /// Get display name (name or canonical alias or room ID)

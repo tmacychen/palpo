@@ -287,7 +287,7 @@ pub async fn delete_devices(req: &mut Request, depot: &mut Depot, res: &mut Resp
 
     let body = match req.parse_json::<DeleteDeviceRequest>().await {
         Ok(b) => b,
-        Err(e) => {
+        Err(_) => {
             res.status_code(StatusCode::BAD_REQUEST);
             res.render(Json(ErrorResponse { error: "Invalid request body".to_string() }));
             return;

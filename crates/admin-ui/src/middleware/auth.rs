@@ -51,11 +51,11 @@ use crate::models::{
     AdminUser, AuthState, Permission, TokenClaims, WebConfigError, WebConfigResult,
 };
 use crate::services::AuthService;
+use crate::utils::time_compat::current_time_secs;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use chrono::{DateTime, Utc};
 use std::rc::Rc;
 use std::cell::RefCell;
-use std::time::SystemTime;
 
 /// Authentication middleware for protecting administrative operations.
 ///
@@ -391,10 +391,7 @@ impl AuthMiddleware {
             .map_err(|_| WebConfigError::auth("Invalid token payload".to_string()))?;
 
         // Check expiration
-        let now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .map_err(|_| WebConfigError::auth("Invalid system time".to_string()))?
-            .as_secs();
+        let now = current_time_secs();
 
         if claims.exp < now {
             return Err(WebConfigError::auth("Token expired".to_string()));
@@ -644,7 +641,6 @@ mod tests {
     use super::*;
     use crate::services::AuthService;
     use crate::models::Permission;
-    use std::time::{Duration, SystemTime};
     use proptest::prelude::*;
 
     fn create_test_middleware() -> AuthMiddleware {
@@ -681,14 +677,8 @@ mod tests {
             is_admin: true,
             permissions: vec![Permission::SystemAdmin],
             session_id: "test-session".to_string(),
-            exp: SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap()
-                .as_secs() + 3600,
-            iat: SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap()
-                .as_secs(),
+            exp: current_time_secs() + 3600,
+            iat: current_time_secs(),
         };
         
         let token = create_test_jwt(&claims, "test-secret");
@@ -712,14 +702,8 @@ mod tests {
             permissions: vec![],
             session_id: "test-session".to_string(),
             // Token expired 1 hour ago
-            exp: SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap()
-                .as_secs() - 3600,
-            iat: SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap()
-                .as_secs() - 7200,
+            exp: current_time_secs() - 3600,
+            iat: current_time_secs() - 7200,
         };
         
         let token = create_test_jwt(&claims, "test-secret");
@@ -849,14 +833,8 @@ mod tests {
                     vec![Permission::UserManagement]
                 },
                 session_id: session_id.clone(),
-                exp: SystemTime::now()
-                    .duration_since(SystemTime::UNIX_EPOCH)
-                    .unwrap()
-                    .as_secs() + exp_offset,
-                iat: SystemTime::now()
-                    .duration_since(SystemTime::UNIX_EPOCH)
-                    .unwrap()
-                    .as_secs(),
+                exp: current_time_secs() + exp_offset,
+                iat: current_time_secs(),
             };
             
             let token = create_test_jwt(&claims, "test-secret");
@@ -947,18 +925,16 @@ mod tests {
             time_offset in 1u64..7200,
             is_future in proptest::bool::ANY,
         ) {
-            let now = SystemTime::now();
+            let now = chrono::Utc::now();
             // Only add duration, never subtract to avoid overflow
-            let duration = Duration::from_secs(time_offset);
             let expires_at_time = if is_future {
-                now + duration
+                now + chrono::Duration::seconds(time_offset as i64)
             } else {
                 // For past times, we use a very old time
-                SystemTime::UNIX_EPOCH
+                chrono::DateTime::from_timestamp(0, 0).unwrap()
             };
             // Convert to RFC3339 string format
-            let expires_at = chrono::DateTime::<chrono::Utc>::from(expires_at_time)
-                .to_rfc3339();
+            let expires_at = expires_at_time.to_rfc3339();
             
             let user = AdminUser {
                 user_id: format!("@{}:example.com", user_id),

@@ -323,15 +323,20 @@ This task list tracks the implementation of the Palpo Matrix server web admin in
 
 ---
 
-## Part C: User Management (优先级: 高 - 需要重做架构)
+## Part C: User Management (已完成)
 
 ### C.1 Fix User Management Architecture
 
-**Status**: [~] **NEEDS REVISION**
+**Status**: [x] **COMPLETED**
 
-**Description**: 用户管理需要重做架构，改为调用 PalpoClient HTTP API
+**Description**: 用户管理架构已重做，改为调用 PalpoClient HTTP API
 
 **Reference**: `.kiro/specs/user-management/design.md`
+
+**Completed tasks**:
+- A.1-A.13: 后端架构重构 (PalpoClient 集成)
+- B.1-B.6: 前端功能增强
+- C.1-C.3: 测试和文档
 
 ---
 

@@ -137,7 +137,7 @@ pub async fn set_shadow_banned(req: &mut Request, depot: &mut Depot, res: &mut R
 
     let body = match req.parse_json::<SetShadowBanRequest>().await {
         Ok(b) => b,
-        Err(e) => {
+        Err(_) => {
             res.status_code(StatusCode::BAD_REQUEST);
             res.render(Json(ErrorResponse { error: "Invalid request body".to_string() }));
             return;

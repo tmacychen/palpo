@@ -7,8 +7,8 @@ use crate::models::{
 };
 use crate::models::room::SortOrder;
 use crate::utils::audit_logger::AuditLogger;
+use crate::utils::time_compat::current_time_secs;
 use std::collections::HashMap;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Room administration API service
 #[derive(Clone)]
@@ -470,17 +470,16 @@ impl RoomAdminAPI {
             UserRoomAction::Join => {
                 if let Some(index) = user_index {
                     room_members[index].membership = "join".to_string();
-                    room_members[index].joined_at = Some(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs());
+                    room_members[index].joined_at = Some(current_time_secs());
                 } else {
-                    // Add new member
                     room_members.push(RoomMember {
                         user_id: request.user_id.clone(),
-                        display_name: None, // Would be fetched from user profile
+                        display_name: None,
                         avatar_url: None,
                         membership: "join".to_string(),
                         power_level: 0,
                         is_admin: false,
-                        joined_at: Some(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs()),
+                        joined_at: Some(current_time_secs()),
                     });
                 }
             },

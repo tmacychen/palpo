@@ -1,6 +1,7 @@
 //! File system compatibility layer for WASM and native targets
 
 use crate::models::WebConfigError;
+use crate::utils::time_compat::current_time_secs;
 
 #[cfg(target_arch = "wasm32")]
 pub async fn read_to_string(_path: &str) -> Result<String, WebConfigError> {
@@ -31,7 +32,7 @@ pub async fn metadata(_path: &str) -> Result<FileMetadata, WebConfigError> {
     // Mock metadata for WASM
     Ok(FileMetadata {
         len: 1024,
-        modified: std::time::SystemTime::now(),
+        modified: current_time_secs(),
     })
 }
 
@@ -58,13 +59,18 @@ pub async fn write(path: &str, content: String) -> Result<(), WebConfigError> {
 
 #[cfg(not(target_arch = "wasm32"))]
 pub async fn metadata(path: &str) -> Result<FileMetadata, WebConfigError> {
+    use std::time::UNIX_EPOCH;
     let metadata = tokio::fs::metadata(path)
         .await
         .map_err(|e| WebConfigError::internal(format!("Failed to get metadata for {}: {}", path, e)))?;
     
+    let modified = metadata.modified()
+        .map(|t| t.duration_since(UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0))
+        .unwrap_or(0);
+    
     Ok(FileMetadata {
         len: metadata.len(),
-        modified: metadata.modified().unwrap_or(std::time::SystemTime::UNIX_EPOCH),
+        modified,
     })
 }
 
@@ -78,5 +84,5 @@ pub async fn copy(from: &str, to: &str) -> Result<(), WebConfigError> {
 
 pub struct FileMetadata {
     pub len: u64,
-    pub modified: std::time::SystemTime,
+    pub modified: u64,
 }

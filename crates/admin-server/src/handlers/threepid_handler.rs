@@ -225,9 +225,9 @@ pub async fn remove_threepid(req: &mut Request, depot: &mut Depot, res: &mut Res
 pub async fn lookup_user_by_external_id(req: &mut Request, depot: &mut Depot, res: &mut Response) {
     if !require_auth(depot, res) { return; }
 
-    let state = get_threepid_handler_state();
-    let auth_provider = req.param::<String>("auth_provider").unwrap_or_default();
-    let external_id = req.param::<String>("external_id").unwrap_or_default();
+    let _state = get_threepid_handler_state();
+    let _auth_provider = req.param::<String>("auth_provider").unwrap_or_default();
+    let _external_id = req.param::<String>("external_id").unwrap_or_default();
 
     // There's no direct API for external ID lookup, so we need to search users
     // This is a limitation - we'll return NOT_IMPLEMENTED for now

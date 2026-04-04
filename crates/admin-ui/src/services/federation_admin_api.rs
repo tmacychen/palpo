@@ -44,8 +44,8 @@ use crate::models::{
     WebConfigError, AuditAction, AuditTargetType,
 };
 use crate::utils::audit_logger::AuditLogger;
+use crate::utils::time_compat::current_time_secs;
 use std::collections::HashMap;
-use std::time::{SystemTime, UNIX_EPOCH, Duration};
 
 #[cfg(target_arch = "wasm32")]
 use gloo_timers::future::sleep;
@@ -110,15 +110,16 @@ impl FederationAdminAPI {
         let destinations = std::sync::Arc::new(std::sync::RwLock::new(HashMap::new()));
         let destination_info = std::sync::Arc::new(std::sync::RwLock::new(HashMap::new()));
         
-        // Add some sample federation destinations for demonstration
         let mut dest_map = destinations.write().unwrap();
         let mut info_map = destination_info.write().unwrap();
+        
+        let now = current_time_secs();
         
         // Matrix.org destination
         let matrix_org = FederationDestination {
             server_name: "matrix.org".to_string(),
             is_reachable: true,
-            last_successful_send: Some(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - 300), // 5 minutes ago
+            last_successful_send: Some(now - 300),
             failure_count: 0,
             shared_rooms: vec![
                 "!general:example.com".to_string(),
@@ -145,7 +146,7 @@ impl FederationAdminAPI {
                 bytes_sent: 2_500_000,
                 bytes_received: 1_800_000,
                 uptime_percentage: 99.5,
-                last_connection_attempt: Some(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - 60),
+                last_connection_attempt: Some(now - 60),
             },
             recent_events: vec![
                 FederationEvent {
@@ -153,7 +154,7 @@ impl FederationAdminAPI {
                     room_id: "!general:example.com".to_string(),
                     event_type: "m.room.message".to_string(),
                     sender: "@user:matrix.org".to_string(),
-                    timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - 120,
+                    timestamp: now - 120,
                     direction: EventDirection::Received,
                     status: EventStatus::Success,
                 },
@@ -162,7 +163,7 @@ impl FederationAdminAPI {
                     room_id: "!general:example.com".to_string(),
                     event_type: "m.room.message".to_string(),
                     sender: "@admin:example.com".to_string(),
-                    timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - 180,
+                    timestamp: now - 180,
                     direction: EventDirection::Sent,
                     status: EventStatus::Success,
                 },
@@ -176,7 +177,7 @@ impl FederationAdminAPI {
         let element_io = FederationDestination {
             server_name: "element.io".to_string(),
             is_reachable: true,
-            last_successful_send: Some(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - 600), // 10 minutes ago
+            last_successful_send: Some(now - 600),
             failure_count: 1,
             shared_rooms: vec![
                 "!public:example.com".to_string(),
@@ -201,7 +202,7 @@ impl FederationAdminAPI {
                 bytes_sent: 900_000,
                 bytes_received: 640_000,
                 uptime_percentage: 95.2,
-                last_connection_attempt: Some(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - 300),
+                last_connection_attempt: Some(now - 300),
             },
             recent_events: vec![
                 FederationEvent {
@@ -209,7 +210,7 @@ impl FederationAdminAPI {
                     room_id: "!public:example.com".to_string(),
                     event_type: "m.room.member".to_string(),
                     sender: "@user:element.io".to_string(),
-                    timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - 300,
+                    timestamp: now - 300,
                     direction: EventDirection::Received,
                     status: EventStatus::Success,
                 },
@@ -223,7 +224,7 @@ impl FederationAdminAPI {
         let unreachable_server = FederationDestination {
             server_name: "unreachable.example".to_string(),
             is_reachable: false,
-            last_successful_send: Some(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - 86400), // 1 day ago
+            last_successful_send: Some(now - 86400),
             failure_count: 10,
             shared_rooms: vec![
                 "!test:example.com".to_string(),
@@ -244,7 +245,7 @@ impl FederationAdminAPI {
                 bytes_sent: 100_000,
                 bytes_received: 0,
                 uptime_percentage: 10.0,
-                last_connection_attempt: Some(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - 3600),
+                last_connection_attempt: Some(now - 3600),
             },
             recent_events: vec![],
         };
@@ -596,29 +597,26 @@ impl FederationAdminAPI {
     /// - Matrix version discovery via `/_matrix/federation/v1/version`
     /// - Server signing key verification
     pub async fn test_federation(&self, request: TestFederationRequest, admin_user: &str) -> Result<TestFederationResponse, WebConfigError> {
-        // Check permissions
         if !self.has_federation_management_permission(admin_user).await? {
             return Err(WebConfigError::permission("Insufficient permissions for federation management"));
         }
 
-        let start_time = SystemTime::now();
+        let start_time = current_time_secs();
         
-        // Simulate federation test
         let test_result = self.perform_federation_test(&request.server_name, request.timeout_seconds.unwrap_or(30)).await;
         
-        let duration = start_time.elapsed().unwrap_or_default();
+        let duration_secs = current_time_secs().saturating_sub(start_time);
         
-        // Log the action
         self.audit_logger.log_action(
             admin_user,
-            AuditAction::UserUpdate, // Using existing action
-            AuditTargetType::User, // Using existing target type
+            AuditAction::UserUpdate,
+            AuditTargetType::User,
             &request.server_name,
             Some(serde_json::json!({
                 "server_name": request.server_name,
                 "timeout_seconds": request.timeout_seconds,
                 "test_success": test_result.success,
-                "duration_ms": duration.as_millis()
+                "duration_ms": duration_secs * 1000
             })),
             &format!("Tested federation connection to {}", request.server_name),
         ).await;
@@ -698,18 +696,13 @@ impl FederationAdminAPI {
     /// - Known servers like "matrix.org" will return realistic server information
     /// - Other servers will pass basic connectivity tests
     async fn perform_federation_test(&self, server_name: &str, _timeout_seconds: u32) -> FederationTestResult {
-        // In a real implementation, this would perform actual federation tests
-        // For demonstration, we'll simulate different scenarios based on server name
+        let start_time = current_time_secs();
         
-        let start_time = SystemTime::now();
-        
-        // Simulate network delay
-        sleep(Duration::from_millis(100)).await;
+        sleep(std::time::Duration::from_millis(100)).await;
         
         let mut test_details = Vec::new();
         let mut overall_success = true;
         
-        // DNS resolution test
         let dns_duration = 50;
         if server_name.contains("unreachable") {
             test_details.push(TestDetail::failure(
@@ -722,7 +715,6 @@ impl FederationAdminAPI {
             test_details.push(TestDetail::success("DNS Resolution".to_string(), dns_duration));
         }
         
-        // TLS handshake test
         let tls_duration = 100;
         if overall_success {
             test_details.push(TestDetail::success("TLS Handshake".to_string(), tls_duration));
@@ -734,7 +726,6 @@ impl FederationAdminAPI {
             ));
         }
         
-        // Matrix version discovery test
         let version_duration = 75;
         if overall_success {
             test_details.push(TestDetail::success("Version Discovery".to_string(), version_duration));
@@ -746,7 +737,6 @@ impl FederationAdminAPI {
             ));
         }
         
-        // Server key verification test
         let key_duration = 125;
         if overall_success {
             test_details.push(TestDetail::success("Server Key Verification".to_string(), key_duration));
@@ -758,7 +748,7 @@ impl FederationAdminAPI {
             ));
         }
         
-        let total_duration = start_time.elapsed().unwrap_or_default().as_millis() as u32;
+        let total_duration = (current_time_secs().saturating_sub(start_time) * 1000) as u32;
         
         let server_info = if overall_success {
             Some(ServerInfo {

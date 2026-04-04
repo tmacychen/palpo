@@ -42,7 +42,7 @@
 use crate::models::{AuditLogEntry, AuditLogFilter, AuditLogResponse, AuditAction, AuditTargetType};
 use crate::models::error::ApiError;
 use serde_json::Value;
-use std::time::SystemTime;
+use crate::utils::time_compat::current_time_secs;
 
 /// Core audit service for managing audit logs in the frontend.
 ///
@@ -342,7 +342,7 @@ impl AuditService {
     ///
     /// # Parameters
     ///
-    /// - `before`: A `SystemTime` timestamp; all entries older than this will be removed
+    /// - `before`: A unix timestamp (u64); all entries older than this will be removed
     ///
     /// # Returns
     ///
@@ -351,17 +351,15 @@ impl AuditService {
     /// # Examples
     /// 
     /// ```ignore
-    /// use std::time::{SystemTime, Duration};
-    ///
     /// let mut service = AuditService::new();
     /// // ... add some entries ...
     ///
     /// // Clean up entries older than 30 days
-    /// let thirty_days_ago = SystemTime::now() - Duration::from_secs(30 * 24 * 3600);
+    /// let thirty_days_ago = current_time_secs() - (30 * 24 * 3600);
     /// let deleted_count = service.cleanup_old_logs(thirty_days_ago).unwrap();
     /// println!("Deleted {} old audit entries", deleted_count);
     /// ```
-    pub fn cleanup_old_logs(&mut self, before: SystemTime) -> Result<u64, ApiError> {
+    pub fn cleanup_old_logs(&mut self, before: u64) -> Result<u64, ApiError> {
         let initial_count = self.logs.len();
         self.logs.retain(|log| log.timestamp >= before);
         let deleted_count = initial_count - self.logs.len();
@@ -394,7 +392,7 @@ impl AuditService {
     /// // Export all failed operations from the last week
     /// let filter = AuditLogFilter {
     ///     success: Some(false),
-    ///     start_time: Some(SystemTime::now() - Duration::from_secs(7 * 24 * 3600)),
+    ///     start_time: Some(current_time_secs() - (7 * 24 * 3600)),
     ///     ..Default::default()
     /// };
     /// let json_export = service.export_logs(filter).unwrap();
@@ -453,11 +451,8 @@ impl AuditService {
         }
 
         // Get recent activity (last 24 hours)
-        let twenty_four_hours_ago = SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs() - 86400;
-        let recent_cutoff = std::time::UNIX_EPOCH + std::time::Duration::from_secs(twenty_four_hours_ago);
+        let now = current_time_secs();
+        let recent_cutoff = now - 86400;
         
         let recent_entries = self.logs.iter()
             .filter(|log| log.timestamp >= recent_cutoff)
@@ -985,9 +980,9 @@ mod tests {
     fn test_audit_service_filter_by_time_range() {
         let mut service = AuditService::new();
         
-        let now = std::time::SystemTime::now();
-        let one_hour_ago = now - std::time::Duration::from_secs(3600);
-        let two_hours_ago = now - std::time::Duration::from_secs(7200);
+        let now = current_time_secs();
+        let one_hour_ago = now - 3600;
+        let two_hours_ago = now - 7200;
         
         // Add an old log entry manually
         let mut old_entry = AuditLogEntry::new(

@@ -138,7 +138,7 @@ pub async fn set_rate_limit(req: &mut Request, depot: &mut Depot, res: &mut Resp
 
     let body = match req.parse_json::<SetRateLimitRequest>().await {
         Ok(b) => b,
-        Err(e) => {
+        Err(_) => {
             res.status_code(StatusCode::BAD_REQUEST);
             res.render(Json(ErrorResponse { error: "Invalid request body".to_string() }));
             return;

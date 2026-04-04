@@ -353,7 +353,10 @@ impl PalpoClient {
         let url = format!("{}/_matrix/client/v3/login", self.inner.base_url);
         let body = serde_json::json!({
             "type": "m.login.password",
-            "user": self.inner.admin_username,
+            "identifier": {
+                "type": "m.id.user",
+                "user": self.inner.admin_username
+            },
             "password": self.inner.admin_password
         });
 

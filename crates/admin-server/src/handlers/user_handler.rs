@@ -37,10 +37,14 @@ use super::validation::{
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateUserRequest {
+    /// Can be a localpart (e.g. "alice") or full Matrix ID (e.g. "@alice:server")
     pub user_id: String,
+    pub password: Option<String>,
     pub displayname: Option<String>,
     pub avatar_url: Option<String>,
+    #[serde(default)]
     pub is_admin: bool,
+    #[serde(default)]
     pub is_guest: bool,
     pub user_type: Option<String>,
     pub appservice_id: Option<String>,
@@ -99,6 +103,9 @@ pub struct UserResponse {
     pub shadow_banned: bool,
     pub deactivated: bool,
     pub locked: bool,
+    pub creation_ts: u64,
+    pub last_seen_ts: Option<u64>,
+    pub permissions: Vec<String>,
 }
 
 impl UserResponse {
@@ -122,16 +129,32 @@ impl UserResponse {
             shadow_banned: user.shadow_banned,
             deactivated: user.deactivated,
             locked: false,
+            creation_ts: user.creation_ts.unwrap_or(0) as u64,
+            last_seen_ts: None,
+            permissions: if user.admin { 
+                vec!["SystemAdmin".to_string()] 
+            } else { 
+                vec![] 
+            },
         }
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserListResponse {
+    pub success: bool,
     pub users: Vec<UserResponse>,
-    pub total_count: i64,
-    pub limit: i64,
-    pub offset: i64,
+    pub total_count: u32,
+    pub has_more: bool,
+    pub error: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateUserResponse {
+    pub success: bool,
+    pub user: Option<UserResponse>,
+    pub generated_password: Option<String>,
+    pub error: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -287,13 +310,6 @@ pub async fn create_user(req: &mut Request, depot: &mut Depot, res: &mut Respons
         }
     };
 
-    if let Err(e) = validate_user_id(&body.user_id) {
-        tracing::warn!("Invalid user_id format: {}", e);
-        res.status_code(StatusCode::BAD_REQUEST);
-        res.render(Json(ErrorResponse { error: format!("Invalid user_id: {}", e) }));
-        return;
-    }
-
     if let Err(e) = validate_displayname(body.displayname.as_deref()) {
         tracing::warn!("Invalid displayname: {}", e);
         res.status_code(StatusCode::BAD_REQUEST);
@@ -301,7 +317,22 @@ pub async fn create_user(req: &mut Request, depot: &mut Depot, res: &mut Respons
         return;
     }
 
+    // Accept localpart (e.g. "alice") or full Matrix ID (e.g. "@alice:server")
+    let full_user_id = if body.user_id.starts_with('@') {
+        body.user_id.clone()
+    } else {
+        format!("@{}:{}", body.user_id, state.server_name)
+    };
+
+    if let Err(e) = validate_user_id(&full_user_id) {
+        tracing::warn!("Invalid user_id format: {}", e);
+        res.status_code(StatusCode::BAD_REQUEST);
+        res.render(Json(ErrorResponse { error: format!("Invalid user_id: {}", e) }));
+        return;
+    }
+
     let create_req = CreateOrUpdateUserRequest {
+        password: body.password,
         displayname: body.displayname,
         avatar_url: body.avatar_url,
         admin: Some(body.is_admin),
@@ -309,16 +340,26 @@ pub async fn create_user(req: &mut Request, depot: &mut Depot, res: &mut Respons
         ..Default::default()
     };
 
-    match state.palpo_client.create_or_update_user(&body.user_id, &create_req).await {
+    match state.palpo_client.create_or_update_user(&full_user_id, &create_req).await {
         Ok(user) => {
             tracing::info!("Created user: {}", user.name);
             res.status_code(StatusCode::CREATED);
-            res.render(Json(UserResponse::from_palpo_user(&user, &state.server_name)));
+            res.render(Json(CreateUserResponse {
+                success: true,
+                user: Some(UserResponse::from_palpo_user(&user, &state.server_name)),
+                generated_password: None,
+                error: None,
+            }));
         }
         Err(e) => {
             tracing::error!("Failed to create user: {}", e);
             res.status_code(StatusCode::INTERNAL_SERVER_ERROR);
-            res.render(Json(ErrorResponse { error: "Failed to create user".to_string() }));
+            res.render(Json(CreateUserResponse {
+                success: false,
+                user: None,
+                generated_password: None,
+                error: Some(format!("Failed to create user: {}", e)),
+            }));
         }
     }
 }
@@ -365,17 +406,25 @@ pub async fn list_users(req: &mut Request, depot: &mut Depot, res: &mut Response
             let users: Vec<UserResponse> = result.users.iter()
                 .map(|u| UserResponse::from_palpo_user(&u, &state.server_name))
                 .collect();
+            let has_more = (offset + limit) < result.total;
             res.render(Json(UserListResponse {
+                success: true,
                 users,
-                total_count: result.total,
-                limit,
-                offset,
+                total_count: result.total as u32,
+                has_more,
+                error: None,
             }));
         }
         Err(e) => {
             tracing::error!("Failed to list users: {}", e);
             res.status_code(StatusCode::INTERNAL_SERVER_ERROR);
-            res.render(Json(ErrorResponse { error: "Failed to list users".to_string() }));
+            res.render(Json(UserListResponse {
+                success: false,
+                users: vec![],
+                total_count: 0,
+                has_more: false,
+                error: Some(format!("Failed to list users: {}", e)),
+            }));
         }
     }
 }

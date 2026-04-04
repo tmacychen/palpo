@@ -12,8 +12,8 @@ use crate::models::{
     parse_yaml_config, generate_yaml_config,
 };
 use crate::utils::audit_logger::AuditLogger;
+use crate::utils::time_compat::current_time_secs;
 use std::collections::HashMap;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Appservice administration API service
 #[derive(Clone)]
@@ -31,8 +31,9 @@ impl AppserviceAdminAPI {
         let appservices = std::sync::Arc::new(std::sync::RwLock::new(HashMap::new()));
         let activities = std::sync::Arc::new(std::sync::RwLock::new(Vec::new()));
         
-        // Add some sample appservices for demonstration
         let mut appservices_map = appservices.write().unwrap();
+        
+        let now = current_time_secs();
         
         // Sample bridge appservice
         appservices_map.insert(
@@ -61,8 +62,8 @@ impl AppserviceAdminAPI {
                 rate_limited: Some(false),
                 protocols: Some(vec!["telegram".to_string()]),
                 is_active: true,
-                created_at: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - 86400,
-                last_ping: Some(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - 300),
+                created_at: now - 86400,
+                last_ping: Some(now - 300),
                 last_error: None,
             }
         );
@@ -94,8 +95,8 @@ impl AppserviceAdminAPI {
                 rate_limited: Some(true),
                 protocols: Some(vec!["irc".to_string()]),
                 is_active: false,
-                created_at: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - 172800,
-                last_ping: Some(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - 3600),
+                created_at: now - 172800,
+                last_ping: Some(now - 3600),
                 last_error: Some("Connection timeout".to_string()),
             }
         );
@@ -323,7 +324,7 @@ impl AppserviceAdminAPI {
             rate_limited: request.rate_limited,
             protocols: request.protocols.clone(),
             is_active: true,
-            created_at: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            created_at: current_time_secs(),
             last_ping: None,
             last_error: None,
         };
@@ -335,7 +336,7 @@ impl AppserviceAdminAPI {
         
         // Log activity
         self.log_activity(AppserviceActivity {
-            timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            timestamp: current_time_secs(),
             activity_type: AppserviceActivityType::Registration,
             description: format!("Registered appservice {}", request.id),
             success: true,
@@ -427,7 +428,7 @@ impl AppserviceAdminAPI {
         
         // Log activity
         self.log_activity(AppserviceActivity {
-            timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            timestamp: current_time_secs(),
             activity_type: AppserviceActivityType::ConfigUpdate,
             description: format!("Updated appservice {}", appservice_id),
             success: true,
@@ -482,7 +483,7 @@ impl AppserviceAdminAPI {
         
         // Log activity
         self.log_activity(AppserviceActivity {
-            timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            timestamp: current_time_secs(),
             activity_type: AppserviceActivityType::Unregistration,
             description: format!("Unregistered appservice {}", request.id),
             success: true,
@@ -522,7 +523,7 @@ impl AppserviceAdminAPI {
             WebConfigError::validation(format!("Appservice {} not found", request.id))
         })?;
         
-        let start_time = SystemTime::now();
+        let start_time = current_time_secs();
         
         // In a real implementation, this would make actual HTTP requests to the appservice
         // For now, we'll simulate the test based on the appservice's current state
@@ -557,16 +558,14 @@ impl AppserviceAdminAPI {
             },
         };
         
-        let response_time_ms = start_time.elapsed()
-            .map(|d| d.as_millis() as u64)
-            .unwrap_or(0);
+        let response_time_ms = current_time_secs().saturating_sub(start_time) * 1000;
         
         drop(appservices);
         
         // Update appservice last_ping and error status
         let mut appservices = self.appservices.write().map_err(|_| WebConfigError::internal("Failed to write appservices"))?;
         if let Some(appservice) = appservices.get_mut(&request.id) {
-            appservice.last_ping = Some(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs());
+            appservice.last_ping = Some(current_time_secs());
             if success {
                 appservice.last_error = None;
             } else {
@@ -577,7 +576,7 @@ impl AppserviceAdminAPI {
         
         // Log activity
         self.log_activity(AppserviceActivity {
-            timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            timestamp: current_time_secs(),
             activity_type: match request.test_type {
                 AppserviceTestType::Ping => AppserviceActivityType::Ping,
                 AppserviceTestType::UserQuery => AppserviceActivityType::UserQuery,

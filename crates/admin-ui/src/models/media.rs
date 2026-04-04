@@ -1,7 +1,7 @@
 //! Media management models
 
 use serde::{Deserialize, Serialize};
-use std::time::SystemTime;
+use crate::utils::time_compat::current_time_secs;
 
 /// Media file information
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -196,12 +196,8 @@ pub struct DailyUploadStats {
 impl MediaInfo {
     /// Check if the media file is old (older than specified days)
     pub fn is_older_than_days(&self, days: u64) -> bool {
-        let now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-        
-        let threshold = now - (days * 86400); // 86400 seconds in a day
+        let now = current_time_secs();
+        let threshold = now - (days * 86400);
         self.upload_time < threshold
     }
 

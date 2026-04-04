@@ -110,7 +110,10 @@ impl AuthService {
         
         let login_body = serde_json::json!({
             "type": "m.login.password",
-            "user": username,
+            "identifier": {
+                "type": "m.id.user",
+                "user": username
+            },
             "password": password
         });
 

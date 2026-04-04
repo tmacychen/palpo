@@ -5,8 +5,8 @@
 
 use crate::models::{config::*, error::WebConfigError};
 use crate::services::config_api::ConfigAPI;
+use crate::utils::time_compat::current_time_secs;
 use serde::{Deserialize, Serialize};
-use std::time::SystemTime;
 
 /// Configuration Template API service
 pub struct ConfigTemplateAPI;
@@ -170,8 +170,8 @@ impl ConfigTemplateAPI {
                 name: "Development Environment".to_string(),
                 description: "Basic configuration for development and testing".to_string(),
                 category: TemplateCategory::Development,
-                created_at: SystemTime::UNIX_EPOCH,
-                updated_at: SystemTime::UNIX_EPOCH,
+                created_at: 0,
+                updated_at: 0,
                 is_builtin: true,
                 compatible_versions: vec!["*".to_string()],
             },
@@ -180,8 +180,8 @@ impl ConfigTemplateAPI {
                 name: "Production Environment".to_string(),
                 description: "Secure configuration for production deployment".to_string(),
                 category: TemplateCategory::Production,
-                created_at: SystemTime::UNIX_EPOCH,
-                updated_at: SystemTime::UNIX_EPOCH,
+                created_at: 0,
+                updated_at: 0,
                 is_builtin: true,
                 compatible_versions: vec!["*".to_string()],
             },
@@ -190,8 +190,8 @@ impl ConfigTemplateAPI {
                 name: "Testing Environment".to_string(),
                 description: "Configuration optimized for automated testing".to_string(),
                 category: TemplateCategory::Testing,
-                created_at: SystemTime::UNIX_EPOCH,
-                updated_at: SystemTime::UNIX_EPOCH,
+                created_at: 0,
+                updated_at: 0,
                 is_builtin: true,
                 compatible_versions: vec!["*".to_string()],
             },
@@ -296,8 +296,8 @@ impl ConfigTemplateAPI {
             name: "Development Environment".to_string(),
             description: "Basic configuration for development and testing".to_string(),
             category: TemplateCategory::Development,
-            created_at: SystemTime::UNIX_EPOCH,
-            updated_at: SystemTime::UNIX_EPOCH,
+            created_at: 0,
+            updated_at: 0,
             is_builtin: true,
             compatible_versions: vec!["*".to_string()],
         };
@@ -425,8 +425,8 @@ impl ConfigTemplateAPI {
             name: "Production Environment".to_string(),
             description: "Secure configuration for production deployment".to_string(),
             category: TemplateCategory::Production,
-            created_at: SystemTime::UNIX_EPOCH,
-            updated_at: SystemTime::UNIX_EPOCH,
+            created_at: 0,
+            updated_at: 0,
             is_builtin: true,
             compatible_versions: vec!["*".to_string()],
         };
@@ -531,8 +531,8 @@ impl ConfigTemplateAPI {
             name: "Testing Environment".to_string(),
             description: "Configuration optimized for automated testing".to_string(),
             category: TemplateCategory::Testing,
-            created_at: SystemTime::UNIX_EPOCH,
-            updated_at: SystemTime::UNIX_EPOCH,
+            created_at: 0,
+            updated_at: 0,
             is_builtin: true,
             compatible_versions: vec!["*".to_string()],
         };
@@ -624,11 +624,7 @@ impl ConfigTemplateAPI {
     }
     
     fn generate_template_id(name: &str) -> String {
-        // Generate a simple ID based on name and timestamp
-        let timestamp = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
+        let timestamp = current_time_secs();
         
         format!("custom-{}-{}", 
             name.to_lowercase().replace(' ', "-").chars()
@@ -655,8 +651,8 @@ pub struct ConfigTemplate {
     pub name: String,
     pub description: String,
     pub category: TemplateCategory,
-    pub created_at: SystemTime,
-    pub updated_at: SystemTime,
+    pub created_at: u64,
+    pub updated_at: u64,
     pub is_builtin: bool,
     pub compatible_versions: Vec<String>,
 }

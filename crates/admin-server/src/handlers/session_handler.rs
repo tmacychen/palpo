@@ -15,7 +15,7 @@ use salvo::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, OnceLock};
 
-use crate::palpo_client::{PalpoClient, PalpoWhoisResponse};
+use crate::palpo_client::PalpoClient;
 
 use super::auth_middleware::require_auth;
 use super::validation::validate_user_id;

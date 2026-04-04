@@ -43,78 +43,113 @@ impl MatrixAdminClient {
 
     /// Creates a new Matrix user with admin privileges
     ///
-    /// Calls the Matrix Admin API `/_synapse/admin/v2/register` endpoint
-    /// to create a user with the admin flag set to true.
+    /// For the bootstrap case (no existing admin), uses the Matrix registration
+    /// endpoint. Then promotes the user to admin via the admin API using their
+    /// own token.
     ///
-    /// # Arguments
-    /// * `username` - The username for the new admin (without @ or domain)
-    /// * `password` - The password for the new admin
-    /// * `displayname` - Optional display name for the user
-    ///
-    /// # Returns
-    /// The user_id of the created admin user
-    ///
-    /// # Errors
-    /// Returns `AdminError::MatrixApiError` if the API call fails
+    /// Returns `(user_id, access_token)`.
     pub async fn create_admin_user(
         &self,
         username: &str,
         password: &str,
         displayname: Option<&str>,
-    ) -> Result<String, AdminError> {
-        let url = format!("{}/_synapse/admin/v2/users/@{}:localhost", self.base_url, username);
-        
-        let request_body = serde_json::json!({
+    ) -> Result<(String, String), AdminError> {
+        let user_id = format!("@{}:localhost", username);
+
+        // Step 1: Register the user via standard Matrix registration endpoint.
+        // This works even without an existing admin token when allow_registration=true.
+        let register_url = format!("{}/_matrix/client/v3/register", self.base_url);
+        let register_body = serde_json::json!({
+            "username": username,
             "password": password,
+            "auth": { "type": "m.login.dummy" }
+        });
+
+        let register_resp = self
+            .client
+            .post(&register_url)
+            .json(&register_body)
+            .send()
+            .await
+            .map_err(|e| AdminError::MatrixApiError(format!("Failed to register user: {}", e)))?;
+
+        // 200/201 = created, 400 with M_USER_IN_USE = already exists (that's fine)
+        let access_token: Option<String> = if register_resp.status().is_success() {
+            #[derive(serde::Deserialize)]
+            struct RegisterResp { access_token: String }
+            let r: RegisterResp = register_resp.json().await
+                .map_err(|e| AdminError::MatrixApiError(format!("Failed to parse register response: {}", e)))?;
+            Some(r.access_token)
+        } else {
+            let status = register_resp.status();
+            let text = register_resp.text().await.unwrap_or_default();
+            if text.contains("M_USER_IN_USE") {
+                // User already exists — login to get a token
+                None
+            } else {
+                return Err(AdminError::MatrixApiError(format!(
+                    "Registration failed ({}): {}", status, text
+                )));
+            }
+        };
+
+        // Step 2: If we didn't get a token from registration, login to get one
+        let token = if let Some(t) = access_token {
+            t
+        } else {
+            let login_url = format!("{}/_matrix/client/v3/login", self.base_url);
+            let login_body = serde_json::json!({
+                "type": "m.login.password",
+                "identifier": { "type": "m.id.user", "user": username },
+                "password": password
+            });
+            let login_resp = self.client.post(&login_url).json(&login_body).send().await
+                .map_err(|e| AdminError::MatrixApiError(format!("Login failed: {}", e)))?;
+            if !login_resp.status().is_success() {
+                let status = login_resp.status();
+                let text = login_resp.text().await.unwrap_or_default();
+                return Err(AdminError::MatrixApiError(format!("Login failed ({}): {}", status, text)));
+            }
+            #[derive(serde::Deserialize)]
+            struct LoginResp { access_token: String }
+            let r: LoginResp = login_resp.json().await
+                .map_err(|e| AdminError::MatrixApiError(format!("Failed to parse login response: {}", e)))?;
+            r.access_token
+        };
+
+        // Step 3: Promote to admin via the admin API using the user's own token
+        let admin_url = format!("{}/_synapse/admin/v2/users/{}", self.base_url, urlencoding::encode(&user_id));
+        let admin_body = serde_json::json!({
             "admin": true,
             "displayname": displayname.unwrap_or(username)
         });
-
-        let response = self
-            .client
-            .put(&url)
-            .json(&request_body)
+        let admin_resp = self.client.put(&admin_url)
+            .header("Authorization", format!("Bearer {}", token))
+            .json(&admin_body)
             .send()
             .await
-            .map_err(|e| AdminError::MatrixApiError(format!("Failed to send request: {}", e)))?;
+            .map_err(|e| AdminError::MatrixApiError(format!("Failed to set admin: {}", e)))?;
 
-        if !response.status().is_success() {
-            let status = response.status();
-            let error_text = response
-                .text()
-                .await
-                .unwrap_or_else(|_| "Unknown error".to_string());
+        if !admin_resp.status().is_success() {
+            let status = admin_resp.status();
+            let text = admin_resp.text().await.unwrap_or_default();
             return Err(AdminError::MatrixApiError(format!(
-                "API returned status {}: {}",
-                status, error_text
+                "API returned status {}: {}", status, text
             )));
         }
 
-        let user_info: UserInfoResponse = response
-            .json()
-            .await
-            .map_err(|e| AdminError::MatrixApiError(format!("Failed to parse response: {}", e)))?;
-
-        Ok(user_info.name)
+        Ok((user_id, token))
     }
 
-    /// Retrieves user information including admin status
-    ///
-    /// # Arguments
-    /// * `user_id` - The full Matrix user ID (e.g., "@admin:localhost")
-    ///
-    /// # Returns
-    /// User information including admin status
-    ///
-    /// # Errors
-    /// Returns `AdminError::MatrixApiError` if the API call fails
-    pub async fn get_user(&self, user_id: &str) -> Result<UserInfoResponse, AdminError> {
+    /// Retrieves user information including admin status, using the provided token
+    pub async fn get_user(&self, user_id: &str, token: &str) -> Result<UserInfoResponse, AdminError> {
         let encoded = urlencoding::encode(user_id);
         let url = format!("{}/_synapse/admin/v2/users/{}", self.base_url, encoded);
 
         let response = self
             .client
             .get(&url)
+            .header("Authorization", format!("Bearer {}", token))
             .send()
             .await
             .map_err(|e| AdminError::MatrixApiError(format!("Failed to send request: {}", e)))?;
@@ -421,14 +456,14 @@ impl MatrixAdminCreationService {
         // Requirement 7.5: Validate password policy
         Self::validate_password_policy(password)?;
 
-        // Requirement 7.3 & 7.4: Create admin user via Matrix Admin API with admin=true
-        let user_id = self
+        // Requirement 7.3 & 7.4: Create admin user via Matrix registration + promote
+        let (user_id, token) = self
             .matrix_admin
             .create_admin_user(username, password, displayname)
             .await?;
 
         // Requirement 7.7: Verify admin status after creation
-        let user_info = self.matrix_admin.get_user(&user_id).await?;
+        let user_info = self.matrix_admin.get_user(&user_id, &token).await?;
         if !user_info.admin {
             return Err(AdminError::AdminStatusNotSet);
         }

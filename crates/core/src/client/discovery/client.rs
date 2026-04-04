@@ -4,18 +4,18 @@
 //!
 //! Get discovery information about the domain.
 
-use std::borrow::Cow;
-
 use salvo::prelude::*;
 #[cfg(feature = "unstable-msc4143")]
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "unstable-msc4143")]
 use serde_json::Value as JsonValue;
-
+#[cfg(feature = "unstable-msc4143")]
+use std::borrow::Cow;
+#[cfg(feature = "unstable-msc4143")]
 use crate::serde::JsonObject;
 
-// const METADATA: Metadata = metadata! {
+
 //     method: GET,
 //     rate_limited: false,
 //     authentication: None,
