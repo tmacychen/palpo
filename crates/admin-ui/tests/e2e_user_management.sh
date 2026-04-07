@@ -25,10 +25,11 @@ NC='\033[0m'
 ADMIN_SERVER_PORT=8081
 ADMIN_UI_PORT=8000
 PALPO_PORT=8008
+SERVER_NAME="${SERVER_NAME:-localhost:8008}"
 DATABASE_URL="${DATABASE_URL:-postgresql://palpo:password@localhost/palpo}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-AdminTest123!}"
+PALPO_ADMIN_PASSWORD="${PALPO_ADMIN_PASSWORD:-Admin123!}"
 WORKSPACE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-PALPO_ADMIN="${PALPO_ADMIN:-Admin123!}"
 
 # Test state tracking
 TESTS_FAILED=false
@@ -95,6 +96,24 @@ wait_for_url() {
     done
     log_error "$name failed to start"
     return 1
+}
+
+# URL encode function
+urlencode() {
+    local string="$1"
+    local strlen=${#string}
+    local encoded=""
+    local pos c o
+
+    for (( pos=0 ; pos<strlen ; pos++ )); do
+        c=${string:$pos:1}
+        case "$c" in
+            [-_.~a-zA-Z0-9] ) o="$c" ;;
+            * ) printf -v o '%%%02X' "'$c" ;;
+        esac
+        encoded+="$o"
+    done
+    echo "$encoded"
 }
 
 make_api_call() {
@@ -167,7 +186,7 @@ start_admin_server() {
 
     log_info "Starting Admin Server from release directory..."
     DATABASE_URL="$DATABASE_URL" \
-    PALPO_ADMIN_PASSWORD="$ADMIN_PASSWORD" \
+    PALPO_ADMIN_PASSWORD="$PALPO_ADMIN_PASSWORD" \
     PALPO_ADMIN_USERNAME="admin" \
     PALPO_BASE_URL="http://localhost:$PALPO_PORT" \
     SERVER_NAME="localhost:8008" \
@@ -425,7 +444,7 @@ start_palpo_server() {
     # Step 1: Register the admin user (idempotent — 400 M_USER_IN_USE is fine)
     REG_RESULT=$(curl -s -X POST "http://localhost:$PALPO_PORT/_matrix/client/v3/register" \
         -H "Content-Type: application/json" \
-        -d "{\"username\": \"admin\", \"password\": \"$ADMIN_PASSWORD\", \"auth\": {\"type\": \"m.login.dummy\"}}")
+        -d "{\"username\": \"admin\", \"password\": \"$PALPO_ADMIN_PASSWORD\", \"auth\": {\"type\": \"m.login.dummy\"}}")
     log_info "Registration: $(echo "$REG_RESULT" | grep -o '"errcode":"[^"]*"\|"user_id":"[^"]*"' | head -1)"
 
     # Step 2: Grant admin via direct DB update (only way to bootstrap without existing admin)
@@ -443,7 +462,7 @@ start_palpo_server() {
     log_info "Triggering admin server to re-authenticate with Palpo..."
     LOGIN_TRIGGER=$(curl -s -X POST "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/matrix-admin/login" \
         -H "Content-Type: application/json" \
-        -d "{\"username\": \"admin\", \"password\": \"$ADMIN_PASSWORD\"}" 2>/dev/null)
+        -d "{\"username\": \"admin\", \"password\": \"$PALPO_ADMIN_PASSWORD\"}" 2>/dev/null)
     if echo "$LOGIN_TRIGGER" | grep -q "access_token\|user_id"; then
         log_success "Admin server re-authenticated with Palpo"
     else
@@ -614,7 +633,7 @@ run_api_tests() {
     echo "Test 0: Ensure Palpo Matrix Admin User"
     MATRIX_ADMIN_RESULT=$(curl -s -X POST "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/matrix-admin/create" \
         -H "Content-Type: application/json" \
-        -d "{\"username\": \"admin\", \"password\": \"$ADMIN_PASSWORD\"}")
+        -d "{\"username\": \"admin\", \"password\": \"$PALPO_ADMIN_PASSWORD\"}")
     if echo "$MATRIX_ADMIN_RESULT" | grep -q "success\|user_id\|already\|exists"; then
         log_success "Palpo Matrix admin user ready"
     else
@@ -676,7 +695,8 @@ run_api_tests() {
 
     # Test 5: Get User Details via API
     echo "Test 5: Get User Details via API"
-    USER_DETAILS=$(make_api_call "GET" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/@$TEST_USER:localhost")
+    ENCODED_USER_ID=$(urlencode "@$TEST_USER:$SERVER_NAME")
+    USER_DETAILS=$(make_api_call "GET" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/$ENCODED_USER_ID")
     if echo "$USER_DETAILS" | grep -q "user_id\|name"; then
         log_success "User details retrieved"
         TESTS_PASSED=$((TESTS_PASSED + 1))
@@ -687,7 +707,7 @@ run_api_tests() {
 
     # Test 6: Update User via API
     echo "Test 6: Update User via API"
-    UPDATE_RESULT=$(make_api_call "PUT" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/@$TEST_USER:localhost" \
+    UPDATE_RESULT=$(make_api_call "PUT" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/$ENCODED_USER_ID" \
         "{\"displayname\": \"Updated Test User\"}")
     if echo "$UPDATE_RESULT" | grep -q "user_id\|name\|displayname"; then
         log_success "User updated via API"
@@ -699,7 +719,7 @@ run_api_tests() {
 
     # Test 7: Get User Devices via API
     echo "Test 7: Get User Devices via API"
-    DEVICES_RESULT=$(make_api_call "GET" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/@$TEST_USER:localhost/devices")
+    DEVICES_RESULT=$(make_api_call "GET" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/$ENCODED_USER_ID/devices")
     if echo "$DEVICES_RESULT" | grep -q "devices\|total"; then
         log_success "User devices retrieved"
         TESTS_PASSED=$((TESTS_PASSED + 1))
@@ -710,7 +730,7 @@ run_api_tests() {
 
     # Test 8: Get User Rate Limit via API (new user has no custom limit — that's OK)
     echo "Test 8: Get User Rate Limit via API"
-    RATE_LIMIT=$(make_api_call "GET" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/@$TEST_USER:localhost/rate-limit")
+    RATE_LIMIT=$(make_api_call "GET" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/$ENCODED_USER_ID/rate-limit")
     log_info "Rate limit response: $RATE_LIMIT"
     log_success "Rate limit endpoint responded (no custom limit expected for new user)"
     TESTS_PASSED=$((TESTS_PASSED + 1))
@@ -718,7 +738,7 @@ run_api_tests() {
 
     # Test 9: Set User Rate Limit via API
     echo "Test 9: Set User Rate Limit via API"
-    SET_RATE_RESULT=$(make_api_call "POST" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/@$TEST_USER:localhost/rate-limit" \
+    SET_RATE_RESULT=$(make_api_call "POST" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/$ENCODED_USER_ID/rate-limit" \
         "{\"messages_per_second\": 100, \"burst_count\": 200}")
     if echo "$SET_RATE_RESULT" | grep -q "messages_per_second\|burst_count\|success"; then
         log_success "User rate limit set"
@@ -730,7 +750,7 @@ run_api_tests() {
 
     # Test 10: Delete User Rate Limit via API
     echo "Test 10: Delete User Rate Limit via API"
-    DELETE_RATE_RESULT=$(make_api_call "DELETE" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/@$TEST_USER:localhost/rate-limit")
+    DELETE_RATE_RESULT=$(make_api_call "DELETE" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/$ENCODED_USER_ID/rate-limit")
     log_info "Rate limit delete response: $DELETE_RATE_RESULT"
     log_success "Rate limit delete endpoint responded"
     TESTS_PASSED=$((TESTS_PASSED + 1))
@@ -738,7 +758,7 @@ run_api_tests() {
 
     # Test 11: Deactivate User via API
     echo "Test 11: Deactivate User via API"
-    DEACTIVATE_RESULT=$(make_api_call "POST" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/@$TEST_USER:localhost/deactivate" \
+    DEACTIVATE_RESULT=$(make_api_call "POST" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/$ENCODED_USER_ID/deactivate" \
         "{\"erase\": false}")
     if echo "$DEACTIVATE_RESULT" | grep -q "message\|success\|deactivated"; then
         log_success "User deactivated via API"
@@ -750,7 +770,7 @@ run_api_tests() {
 
     # Test 12: Reactivate User via API (PUT with password)
     echo "Test 12: Reactivate User via API"
-    REACTIVATE_RESULT=$(make_api_call "PUT" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/@$TEST_USER:localhost" \
+    REACTIVATE_RESULT=$(make_api_call "PUT" "http://localhost:$ADMIN_SERVER_PORT/api/v1/admin/users/$ENCODED_USER_ID" \
         "{\"password\": \"$TEST_PASSWORD\"}")
     if echo "$REACTIVATE_RESULT" | grep -q "user_id\|name"; then
         log_success "User reactivated via API"
@@ -1105,7 +1125,7 @@ main() {
 
                 cd "$WORKSPACE_ROOT/target/release"
                 DATABASE_URL="$DATABASE_URL" \
-                PALPO_ADMIN_PASSWORD="$ADMIN_PASSWORD" \
+                PALPO_ADMIN_PASSWORD="$PALPO_ADMIN_PASSWORD" \
                 PALPO_ADMIN_USERNAME="admin" \
                 PALPO_BASE_URL="http://localhost:$PALPO_PORT" \
                 SERVER_NAME="localhost:8008" \
